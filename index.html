@@ -564,15 +564,32 @@ const CLS = { HU: "Hurricane", TS: "Tropical Storm", TD: "Tropical Depression", 
 function category(mph) { return mph >= 157 ? 5 : mph >= 130 ? 4 : mph >= 111 ? 3 : mph >= 96 ? 2 : mph >= 74 ? 1 : 0; }
 function miles(a1, o1, a2, o2) { const R = 3958.8, r = Math.PI / 180, da = (a2 - a1) * r, dO = (o2 - o1) * r; const x = Math.sin(da / 2) ** 2 + Math.cos(a1 * r) * Math.cos(a2 * r) * Math.sin(dO / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); }
 function coneURL(id) { const b = id.slice(0, 2).toUpperCase(), n = id.slice(2, 4); const folder = (b === "AL" ? "AT" : b) + n; return `https://www.nhc.noaa.gov/storm_graphics/${folder}/${id.toUpperCase()}_5day_cone_with_line_and_wind.png`; }
+// Storms are normalized to { id, name, cls, kt, pressure, lat, lon, dir, moveMph, basin }.
+const BASIN = { AL: "Atlantic", EP: "Eastern Pacific", CP: "Central Pacific" };
+function stripClass(n) { return Object.values(CLS).reduce((x, c) => x.replace(new RegExp("^" + c + "\\s+", "i"), ""), n || ""); }
 async function loadTropics() {
   if (DEMO) { storms = SAMPLE.storms; return; }
-  try { const j = await getJSON("https://www.nhc.noaa.gov/CurrentStorms.json"); storms = j.activeStorms || []; stormsNote = ""; }
-  catch (e) { storms = null; stormsNote = "Couldn't load the storm list from the Hurricane Center."; }
+  // NWS map service (sends CORS headers); NHC's own JSON is the fallback.
+  try {
+    const q = "where=tau%3D0&outFields=stormname,stormtype,maxwind,mslp,tcdir,tcspd,lat,lon,idp_source&returnGeometry=false&f=json";
+    const j = await getJSON("https://mapservices.weather.noaa.gov/tropical/rest/services/tropical/NHC_tropical_weather_summary/MapServer/5/query?" + q);
+    if (j.error) throw new Error("service error");
+    storms = (j.features || []).map(({ attributes: a }) => {
+      const id = String(a.idp_source || "").split(/[-_]/)[0];
+      return { id, name: stripClass(a.stormname), cls: a.stormtype, kt: a.maxwind, pressure: a.mslp, lat: a.lat, lon: a.lon, dir: a.tcdir, moveMph: a.tcspd != null ? Math.round(a.tcspd * 1.15078) : null, basin: id.slice(0, 2).toUpperCase() };
+    });
+    stormsNote = ""; return;
+  } catch (e) {}
+  try {
+    const j = await getJSON("https://www.nhc.noaa.gov/CurrentStorms.json");
+    storms = (j.activeStorms || []).map((s) => ({ id: s.id, name: s.name, cls: s.classification, kt: parseFloat(s.intensity), pressure: s.pressure, lat: s.latitudeNumeric, lon: s.longitudeNumeric, dir: s.movementDir, moveMph: s.movementSpeed, basin: String(s.id).slice(0, 2).toUpperCase() }));
+    stormsNote = "";
+  } catch (e) { storms = null; stormsNote = "Couldn't load the storm list from the Hurricane Center."; }
 }
 function drawStorms() {
   if (!map || !storms) return;
   if (stormLayer) stormLayer.remove(); stormLayer = L.layerGroup().addTo(map);
-  storms.forEach((s) => L.circleMarker([s.latitudeNumeric, s.longitudeNumeric], { radius: 8, color: "#fff", weight: 2, fillColor: "#c62828", fillOpacity: 1 }).bindTooltip(`${CLS[s.classification] || s.classification} ${s.name}`).addTo(stormLayer));
+  storms.forEach((s) => L.circleMarker([s.lat, s.lon], { radius: 8, color: "#fff", weight: 2, fillColor: "#c62828", fillOpacity: 1 }).bindTooltip(`${CLS[s.cls] || s.cls} ${s.name}`).addTo(stormLayer));
 }
 function renderTropics() {
   const el = $("p-tropics"); let html = "";
@@ -582,16 +599,17 @@ function renderTropics() {
   else if (storms === null) html += `<div class="card empty"><strong>Storm list unavailable</strong>${esc(stormsNote)} The outlook map below and the <a class="link" href="https://www.nhc.noaa.gov/" target="_blank" rel="noopener">Hurricane Center site</a> still have the latest.</div>`;
   else if (!storms.length) html += `<div class="card empty"><strong>No active storms</strong>The National Hurricane Center isn't tracking any named storms right now.${inSeason ? " The Atlantic season runs through November 30." : ""}</div>`;
   else html += storms.map((s) => {
-    const mph = Math.round(parseFloat(s.intensity) * 1.15078); const cat = s.classification === "HU" ? category(mph) : 0;
-    const dist = Math.round(miles(place.lat, place.lon, s.latitudeNumeric, s.longitudeNumeric));
+    const mph = Math.round(s.kt * 1.15078); const cat = s.cls === "HU" ? category(mph) : 0;
+    const dist = Math.round(miles(place.lat, place.lon, s.lat, s.lon));
     return `<article class="card storm">
-      <div class="storm-head"><h3>${esc(s.name)}</h3><span class="cls">${esc(CLS[s.classification] || s.classification)}${cat ? ` · Category ${cat}` : ""}</span></div>
+      <div class="storm-head"><h3>${esc(s.name)}</h3><span class="cls">${esc(CLS[s.cls] || s.cls)}${cat ? ` · Category ${cat}` : ""}</span></div>
       <dl>
         <div class="stat"><dt>Winds</dt><dd class="num">${mph} <small>mph</small></dd></div>
-        <div class="stat"><dt>Moving</dt><dd class="num">${s.movementSpeed != null ? `${compass(s.movementDir)} ${s.movementSpeed} <small>mph</small>` : "—"}</dd></div>
+        <div class="stat"><dt>Moving</dt><dd class="num">${s.moveMph != null ? `${compass(s.dir)} ${s.moveMph} <small>mph</small>` : "—"}</dd></div>
         <div class="stat"><dt>Pressure</dt><dd class="num">${esc(s.pressure)} <small>mb</small></dd></div>
         <div class="stat"><dt>From ${esc(place.name.split(",")[0])}</dt><dd class="num">${dist.toLocaleString()} <small>mi</small></dd></div>
       </dl>
+      ${BASIN[s.basin] ? `<p class="skeleton" style="margin:0">${BASIN[s.basin]}</p>` : ""}
       ${DEMO ? "" : `<img src="${coneURL(s.id)}" alt="Forecast cone for ${esc(s.name)}" loading="lazy" onerror="this.remove()">`}
       <a class="link" href="https://www.nhc.noaa.gov/" target="_blank" rel="noopener">Latest advisory at nhc.noaa.gov</a>
     </article>`;
