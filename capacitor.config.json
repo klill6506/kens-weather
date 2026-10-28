@@ -1,0 +1,9 @@
+{
+  "appId": "com.kenlill.weatherbear",
+  "appName": "Weather Bear",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#eef2f6"
+  }
+}

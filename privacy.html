@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Weather Bear Privacy</title>
+<link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+<style>
+:root { --bg: #eef2f6; --surface: #ffffff; --ink: #14202e; --muted: #5a6b7d; --line: #d6dee7; --accent: #1d63c4; color-scheme: light dark; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0f1722; --surface: #172231; --ink: #e8eef5; --muted: #9fb0c3; --line: #263547; --accent: #7fb2ff; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+main { max-width: 640px; margin: 0 auto; padding: calc(24px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom)); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 4px 20px 16px; }
+h1 { font-size: 26px; margin: 0 0 4px; } h2 { font-size: 18px; margin: 22px 0 6px; }
+p.meta { color: var(--muted); margin: 0 0 16px; } a { color: var(--accent); }
+ul { padding-left: 20px; } li { margin: 4px 0; }
+</style>
+</head><body><main>
+<h1>Privacy policy</h1>
+<p class="meta">Weather Bear · Effective October 28, 2026</p>
+<div class="card">
+<h2>The short version</h2>
+<p>Weather Bear has no accounts, no ads, no analytics and no tracking. It has no server of its own, so the developer never receives your location or anything else about you. Nothing is sold or shared for marketing.</p>
+
+<h2>What the app uses</h2>
+<ul>
+<li><b>Your location, only if you allow it.</b> When you tap the location button, the app asks iOS for your approximate position so it can show the weather where you are. You can say no and search for a city instead.</li>
+<li><b>City searches.</b> The name you type is sent to a geocoding service to find matching places.</li>
+<li><b>Your saved place.</b> The last place you picked is stored on your device so the app opens to it next time. It never leaves your device.</li>
+</ul>
+
+<h2>Who receives it</h2>
+<p>To show the weather, the app asks these public weather and map services directly from your device. Each request carries the coordinates of the place being shown (or the city name you searched) and, like any internet request, your device's IP address. No name, email, account or device identifier is sent.</p>
+<ul>
+<li>Open-Meteo, for forecasts and city search (<a href="https://open-meteo.com/en/terms">terms and privacy</a>)</li>
+<li>The U.S. National Weather Service and NOAA, for alerts, place names and tropical storm maps (<a href="https://www.weather.gov/privacy">privacy</a>)</li>
+<li>RainViewer, for radar images (<a href="https://www.rainviewer.com/privacy.html">privacy</a>)</li>
+<li>OpenStreetMap, for map tiles (<a href="https://osmfoundation.org/wiki/Privacy_Policy">privacy</a>)</li>
+<li>Cloudflare cdnjs and Google Fonts, for the map library and fonts the app loads</li>
+</ul>
+<p>These services handle requests under their own policies, linked above. Weather Bear doesn't control what they log.</p>
+
+<h2>Keeping and deleting data</h2>
+<p>Weather Bear keeps nothing about you anywhere except your device. To erase your saved place, delete the app. To stop location use at any time, go to Settings › Weather Bear › Location and choose Never.</p>
+
+<h2>Children</h2>
+<p>The app collects no personal information from anyone, including children.</p>
+
+<h2>Changes and contact</h2>
+<p>If this policy changes, the new version will be posted here with a new effective date. Questions? See the <a href="support.html">support page</a>.</p>
+</div>
+</main></body></html>

@@ -1,0 +1,96 @@
+# Builds the Weather Bear iPhone app on GitHub's Mac machines (free for public repos).
+#
+# - Every push to the app branch, and every pull request, runs "Build check":
+#   an unsigned simulator build that proves the app compiles. No Apple account needed.
+# - "Upload to TestFlight" runs only when started by hand (Actions tab > iOS > Run workflow
+#   > upload = true). It needs these repository secrets, all from Ken's Apple Developer account:
+#     APPLE_TEAM_ID            10-character Team ID (developer.apple.com > Membership)
+#     ASC_KEY_ID               App Store Connect API key ID
+#     ASC_ISSUER_ID            App Store Connect API issuer ID
+#     ASC_API_KEY_P8           full text of the downloaded AuthKey_XXXX.p8 file
+#   The key needs the Admin role so Xcode can create the distribution certificate in the cloud.
+name: iOS
+
+on:
+  push:
+    branches: [ios-app-store]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: "Sign and upload a build to TestFlight"
+        type: boolean
+        default: false
+
+jobs:
+  build-check:
+    name: Build check
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Build web assets and sync into the iOS project
+        run: |
+          npm ci
+          npm run sync
+      - run: xcodebuild -version
+      - name: Build for the iPhone simulator (unsigned)
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App \
+            -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
+
+  testflight:
+    name: Upload to TestFlight
+    if: github.event_name == 'workflow_dispatch' && inputs.upload
+    needs: build-check
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Build web assets and sync into the iOS project
+        run: |
+          npm ci
+          npm run sync
+      - name: Install the App Store Connect API key
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s' "$ASC_API_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8"
+      - name: Archive (signed automatically in the cloud)
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/WeatherBear.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
+            CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
+            archive
+      - name: Export and upload to App Store Connect
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          sed "s/TEAM_ID_PLACEHOLDER/$APPLE_TEAM_ID/" ios/ExportOptions.plist > "$RUNNER_TEMP/ExportOptions.plist"
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/WeatherBear.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+      - name: Remove the key
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/keys"
