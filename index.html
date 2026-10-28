@@ -643,10 +643,25 @@ function setPlace(p) {
   if (map) { map.setView([p.lat, p.lon], 7); placeMarker && placeMarker.setLatLng([p.lat, p.lon]); }
   refresh(true);
 }
+// Turn coordinates into "Town, ST" with the Weather Service's points lookup (US only, no key).
+async function nameGPS(p) {
+  try {
+    const j = await getJSON(`https://api.weather.gov/points/${p.lat.toFixed(4)},${p.lon.toFixed(4)}`, { headers: { Accept: "application/geo+json" } });
+    const r = j.properties && j.properties.relativeLocation && j.properties.relativeLocation.properties;
+    if (!r || !r.city || place !== p) return;
+    p.name = r.state ? `${r.city}, ${r.state}` : r.city;
+    store.set("kw.place", p); renderAll();
+  } catch (e) { /* outside the US or offline: keep "My location" */ }
+}
 function useGPS(silent) {
   if (!navigator.geolocation) { if (!silent) setNotice("This browser can't share your location. Search for a city instead."); return; }
   navigator.geolocation.getCurrentPosition(
-    (pos) => setPlace({ name: "My location", lat: pos.coords.latitude, lon: pos.coords.longitude, mode: "gps" }),
+    (pos) => {
+      const p = { name: "My location", lat: pos.coords.latitude, lon: pos.coords.longitude, mode: "gps" };
+      // Show the town right away if we already looked it up for nearly the same spot.
+      if (place.mode === "gps" && place.name !== "My location" && miles(place.lat, place.lon, p.lat, p.lon) < 3) p.name = place.name;
+      setPlace(p); nameGPS(p);
+    },
     () => { if (!silent) setNotice("Location is turned off for this page, so I'm showing the city you picked. You can allow it in Settings › Safari › Location."); },
     { timeout: 10000, maximumAge: 15 * 60000 }
   );
