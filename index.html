@@ -201,6 +201,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* Radar */
 .map-wrap { position: relative; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: var(--surface); }
 #map { height: min(62vh, 520px); width: 100%; }
+#map.dark-tiles .leaflet-tile-pane .leaflet-layer:first-child { filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9); }
 .map-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .pill-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 14px; cursor: pointer; font-weight: 700; font-size: 0.9rem; }
 .pill-btn svg { width: 14px; height: 14px; }
@@ -535,8 +536,8 @@ async function initRadar() {
   try {
     await loadLeaflet();
     map = L.map("map", { zoomControl: true, attributionControl: true, maxZoom: 10, minZoom: 3 }).setView([place.lat, place.lon], 7);
-    const style = isDark() ? "dark_all" : "light_all";
-    L.tileLayer(`https://{s}.basemaps.cartocdn.com/${style}/{z}/{x}/{y}{r}.png`, { subdomains: "abcd", maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>' }).addTo(map);
+    if (isDark()) $("map").classList.add("dark-tiles");
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors' }).addTo(map);
     placeMarker = L.circleMarker([place.lat, place.lon], { radius: 6, color: "#fff", weight: 2, fillColor: "#1d63c4", fillOpacity: 1 }).addTo(map);
     const j = await getJSON("https://api.rainviewer.com/public/weather-maps.json");
     radarHost = j.host; radarFrames = (j.radar && j.radar.past) || [];
