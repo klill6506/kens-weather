@@ -3,11 +3,12 @@
 *Updated: 2026-10-28*
 
 ## Done
-- Repo klill6506/kens-weather (private), local folder D:\Personal\kens-weather.
-- GitHub Pages: deploy from branch `main`, `/`. Placeholder `index.html`.
+- Single-page app in index.html (forecast, alerts, radar, tropics).
+- Repo klill6506/kens-weather (public), local folder D:\Personal\kens-weather.
+- GitHub Pages: deploy from branch `main`, `/`.
 
 ## Next
-- Decide what the app should do (Ken hasn't said yet).
+- Whatever Ken wants next for the app.
 
 ## Blockers
 - None.
