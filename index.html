@@ -649,7 +649,10 @@ async function nameGPS(p) {
     const j = await getJSON(`https://api.weather.gov/points/${p.lat.toFixed(4)},${p.lon.toFixed(4)}`, { headers: { Accept: "application/geo+json" } });
     const r = j.properties && j.properties.relativeLocation && j.properties.relativeLocation.properties;
     if (!r || !r.city || place !== p) return;
-    p.name = r.state ? `${r.city}, ${r.state}` : r.city;
+    // Consolidated cities come back like "Athens-Clarke County unified government (balance)".
+    let city = r.city.replace(/\s*\(.*?\)\s*/g, "").trim();
+    if (/ government$/i.test(city)) city = city.split(/[-\/]/)[0].trim();
+    p.name = r.state ? `${city}, ${r.state}` : city;
     store.set("kw.place", p); renderAll();
   } catch (e) { /* outside the US or offline: keep "My location" */ }
 }
