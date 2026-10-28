@@ -4,8 +4,8 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Weather Bear">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#eef2f6">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#1e5ea8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
@@ -54,9 +54,40 @@
   color-scheme: dark;
 }
 
+/* Color layer: cards float on a sky that follows the weather and time of day (bear-icon palette). */
+:root {
+  --card: rgba(255, 255, 255, 0.93); --accent-soft: #e3effb; --tab-on: #1d63c4;
+  --sun: #f2a007; --moon: #c9a227; --cloud: #9fb1c6;
+  --t-frigid: #4338ca; --t-cold: #1d6fc4; --t-cool: #0f8577; --t-warm: #b45f05; --t-hot: #c2410c; --t-scorch: #c81e3a;
+  --sky1: #1e5ea8; --sky2: #4c93d3;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --card: rgba(14, 24, 38, 0.88); --accent-soft: #1d3350; --tab-on: #2f6fb5;
+    --sun: #f5b544; --moon: #f2dc8f; --cloud: #8597ae;
+    --t-frigid: #a5b4fc; --t-cold: #7cc0ff; --t-cool: #5fd4c4; --t-warm: #ffb454; --t-hot: #ff8a50; --t-scorch: #ff6b81;
+  }
+}
+:root[data-theme="dark"] {
+  --card: rgba(14, 24, 38, 0.88); --accent-soft: #1d3350; --tab-on: #2f6fb5;
+  --sun: #f5b544; --moon: #f2dc8f; --cloud: #8597ae;
+  --t-frigid: #a5b4fc; --t-cold: #7cc0ff; --t-cool: #5fd4c4; --t-warm: #ffb454; --t-hot: #ff8a50; --t-scorch: #ff6b81;
+}
+/* Every sky is dark enough for white text at the top. */
+html[data-sky="partly"] { --sky1: #2a66a6; --sky2: #6a97c4; }
+html[data-sky="cloudy"] { --sky1: #4b5f74; --sky2: #7f91a3; }
+html[data-sky="rain"] { --sky1: #31455a; --sky2: #5b7186; }
+html[data-sky="storm"] { --sky1: #262a40; --sky2: #4a4e6c; }
+html[data-sky="snow"] { --sky1: #566f8a; --sky2: #93a7bc; }
+html[data-sky="dawn"] { --sky1: #3a5a99; --sky2: #e8996b; }
+html[data-sky="dusk"] { --sky1: #2c3d78; --sky2: #d9775a; }
+html[data-sky="night"] { --sky1: #0b1630; --sky2: #213668; }
+html[data-sky="night-cloudy"] { --sky1: #1a2233; --sky2: #363f53; }
+html[data-sky="night-rain"] { --sky1: #121a28; --sky2: #2c3646; }
+
 * { box-sizing: border-box; }
 body {
-  background: var(--bg);
+  background: var(--sky2);
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 16px;
@@ -73,6 +104,7 @@ body {
   flex-direction: column;
   gap: 14px;
 }
+body::after { content: ""; position: fixed; inset: 0; z-index: -1; background: linear-gradient(180deg, var(--sky1) 0%, var(--sky2) 100%); }
 button { font: inherit; color: inherit; }
 button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .num { font-variant-numeric: tabular-nums; }
@@ -85,43 +117,50 @@ button:focus-visible, input:focus-visible, a:focus-visible { outline: 2px solid 
   font-family: var(--font-display);
   font-stretch: 112%;
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   letter-spacing: 0.01em;
+  color: #fff; display: flex; align-items: center; gap: 8px; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
-.brand .hello { margin: 0; color: var(--muted); font-size: 0.9rem; }
+.brand h1 svg { width: 30px; height: 30px; border-radius: 8px; flex: none; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25); }
+.brand .hello { margin: 0; color: rgba(255, 255, 255, 0.88); font-size: 0.9rem; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); }
 .place-btn {
   display: inline-flex; align-items: center; gap: 6px;
-  background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.45); border-radius: 999px; color: #fff;
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
   padding: 6px 12px; cursor: pointer; max-width: 55%; min-width: 0;
   font-size: 0.9rem; font-weight: 700;
 }
 .place-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.place-btn svg { flex: none; width: 14px; height: 14px; color: var(--accent); }
+.place-btn svg { flex: none; width: 14px; height: 14px; color: #fff; }
 .place-btn[disabled] { cursor: default; }
 
 /* Notice */
 .notice {
-  font-size: 0.85rem; color: var(--muted);
-  border: 1px dashed var(--line); border-radius: 10px; padding: 8px 12px;
+  font-size: 0.85rem; color: var(--muted); background: var(--card);
+  border: 0; border-radius: 10px; padding: 8px 12px;
 }
 .notice strong { color: var(--ink); }
 
 /* Tabs */
 .tabs {
   display: grid; grid-template-columns: repeat(4, 1fr);
-  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; gap: 4px;
+  background: var(--card); border: 0; border-radius: 14px; padding: 5px; gap: 4px;
+  box-shadow: 0 6px 20px rgba(10, 30, 60, 0.18); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
   position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
 }
-body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--sky1); }
 .tab {
-  border: 0; background: transparent; border-radius: 9px; padding: 8px 4px; cursor: pointer;
-  font-size: 0.85rem; font-weight: 700; color: var(--muted); position: relative;
+  border: 0; background: transparent; border-radius: 10px; padding: 7px 4px 6px; cursor: pointer;
+  font-size: 0.8rem; font-weight: 700; color: var(--ink); position: relative;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
 }
-.tab[aria-selected="true"] { background: var(--bg); color: var(--ink); }
+.tab svg { width: 20px; height: 20px; }
+.tab[aria-selected="true"] { background: var(--tab-on); color: #fff; box-shadow: 0 2px 6px rgba(10, 30, 60, 0.25); }
 .tab .dot { position: absolute; top: 6px; right: 10%; width: 8px; height: 8px; border-radius: 50%; background: var(--warning); }
 
 .panel { display: flex; flex-direction: column; gap: 14px; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+.card { background: var(--card); border: 0; border-radius: var(--radius); padding: 14px 16px; box-shadow: 0 6px 20px rgba(10, 30, 60, 0.14); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+.contents { display: contents; }
 .label {
   margin: 0 0 8px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
 }
@@ -131,22 +170,24 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .hero-temp {
   font-family: var(--font-display); font-weight: 300; font-stretch: 90%;
   font-size: clamp(4.6rem, 22vw, 6.4rem); line-height: 0.9; letter-spacing: -0.03em; margin: 0;
+  color: #fff; text-shadow: 0 2px 14px rgba(0, 0, 0, 0.2);
 }
 .hero-temp sup { font-size: 0.4em; font-weight: 400; vertical-align: 0.95em; margin-left: 2px; letter-spacing: 0; }
-.hero-icon { width: 76px; height: 76px; justify-self: end; align-self: center; }
+.hero-icon { width: 96px; height: 96px; padding: 10px; justify-self: end; align-self: center; border-radius: 50%; background: radial-gradient(circle, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0) 70%); --cloud: #f2f6fb; --moon: #f6e3a1; --sun: #ffc53d; }
+.hero-icon svg { width: 100%; height: 100%; filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.18)); }
 .hero-cond { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; }
-.hero-cond .cond { font-size: 1.25rem; font-weight: 700; margin: 0; }
-.hero-cond .hilo { font-family: var(--font-display); font-stretch: 100%; font-size: 1.1rem; margin: 0; color: var(--muted); }
-.hero-cond .hilo b { color: var(--ink); font-weight: 600; }
+.hero-cond .cond { font-size: 1.25rem; font-weight: 700; margin: 0; color: #fff; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); }
+.hero-cond .hilo { font-family: var(--font-display); font-stretch: 100%; font-size: 1.1rem; margin: 0; color: rgba(255, 255, 255, 0.85); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); }
+.hero-cond .hilo b { color: #fff; font-weight: 600; }
 
-.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0; }
 .stat { min-width: 0; }
 .stat dt { font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
 .stat dd { margin: 2px 0 0; font-weight: 700; font-size: 0.98rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .stat dd small { font-weight: 400; color: var(--muted); font-size: 0.8rem; }
 
 /* Sun */
-.sun-card { display: grid; grid-template-columns: auto 1fr auto; align-items: end; gap: 4px 10px; }
+.sun-card { background: linear-gradient(120deg, var(--sun-soft) 0%, var(--card) 70%); display: grid; grid-template-columns: auto 1fr auto; align-items: end; gap: 4px 10px; }
 .sun-card .label { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 8px; }
 .sun-card .label span:last-child { text-transform: none; letter-spacing: 0; font-weight: 400; font-size: 0.8rem; }
 .sun-time { margin: 0; }
@@ -173,7 +214,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 /* Hourly */
 .hourly { display: flex; gap: 4px; overflow-x: auto; scroll-snap-type: x proximity; margin: 0 -8px; padding: 2px 8px 6px; -webkit-overflow-scrolling: touch; }
 .hour { flex: none; width: 54px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 0; border-radius: 10px; scroll-snap-align: start; }
-.hour.now { background: var(--bg); }
+.hour.now { background: var(--accent-soft); }
 .hour .h { font-size: 0.78rem; color: var(--muted); font-weight: 700; white-space: nowrap; }
 .hour.now .h { color: var(--ink); }
 .hour svg { width: 28px; height: 28px; }
@@ -193,16 +234,17 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .day .lo { color: var(--muted); text-align: right; }
 .day .hi { font-weight: 700; }
 .bar { position: relative; height: 6px; border-radius: 3px; background: var(--bg); min-width: 0; }
-.bar i { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: linear-gradient(90deg, var(--cool), var(--warm)); }
+.bar i { position: absolute; top: 0; bottom: 0; border-radius: 3px; background: linear-gradient(90deg, var(--a, var(--cool)), var(--b, var(--warm))); }
 .bar b { position: absolute; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--surface); border: 2px solid var(--ink); }
 
-.foot { font-size: 0.78rem; color: var(--muted); text-align: center; margin: 0; }
-.foot a { color: var(--muted); }
+.foot { font-size: 0.78rem; color: rgba(255, 255, 255, 0.92); text-align: center; margin: 0; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35); }
+.foot a { color: #fff; }
+.foot .pill-btn { text-shadow: none; color: var(--ink); }
 
 /* Radar */
-.map-wrap { position: relative; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); background: var(--surface); }
+.map-wrap { position: relative; border-radius: var(--radius); overflow: hidden; background: var(--surface); box-shadow: 0 6px 20px rgba(10, 30, 60, 0.14); }
 #map { height: min(62vh, 520px); width: 100%; }
-#map.dark-tiles .leaflet-tile-pane .leaflet-layer:first-child { filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9); }
+.dark-tiles .leaflet-tile-pane .leaflet-layer:first-child { filter: invert(1) hue-rotate(180deg) brightness(0.9) contrast(0.9); }
 .map-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .pill-btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 14px; cursor: pointer; font-weight: 700; font-size: 0.9rem; }
 .pill-btn svg { width: 14px; height: 14px; }
@@ -210,11 +252,22 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .frame-time b { color: var(--ink); }
 .legend { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: var(--muted); }
 .legend i { flex: 1; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #9be2ff, #1ca3e8, #1c55d8, #f3d23c, #f0882a, #d8282a, #c44fb8); }
+.radar-controls { display: flex; flex-direction: column; gap: 10px; }
+/* Small radar on Today */
+.mini-radar { padding: 0; overflow: hidden; }
+.mini-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px 8px; }
+.mini-head .label { margin: 0; }
+.mini-open { border: 0; background: none; color: var(--accent); font-weight: 700; font-size: 0.9rem; cursor: pointer; padding: 0; }
+#miniMap { height: 190px; width: 100%; cursor: pointer; background: var(--bg); }
+#miniMap .leaflet-control-attribution { font-size: 9px; }
+.mini-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 0; padding: 8px 16px 12px; font-size: 0.8rem; color: var(--muted); }
+.mini-foot b { color: var(--ink); }
+.mini-foot .legend { flex: 0 1 140px; }
 .empty { text-align: center; color: var(--muted); padding: 28px 16px; }
 .empty strong { display: block; color: var(--ink); font-size: 1.05rem; margin-bottom: 4px; }
 
 /* Alerts list */
-.alert { border-radius: var(--radius); border: 1px solid var(--line); background: var(--surface); overflow: hidden; }
+.alert { border-radius: var(--radius); border: 0; background: var(--card); overflow: hidden; box-shadow: 0 6px 20px rgba(10, 30, 60, 0.14); }
 .alert > summary { list-style: none; cursor: pointer; padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start; }
 .alert > summary::-webkit-details-marker { display: none; }
 .alert .chip { flex: none; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; border-radius: 6px; padding: 3px 7px; margin-top: 2px; }
@@ -254,7 +307,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 <div class="app" id="app">
   <header class="top">
     <div class="brand">
-      <h1>Weather Bear</h1>
+      <h1><svg viewBox="0 0 1024 1024" aria-hidden="true"><rect width="1024" height="1024" fill="#2f6fb5"/><circle cx="770" cy="250" r="140" fill="#ffc53d"/><circle cx="300" cy="420" r="118" fill="#8a5730"/><circle cx="724" cy="420" r="118" fill="#8a5730"/><circle cx="300" cy="420" r="62" fill="#d59a66"/><circle cx="724" cy="420" r="62" fill="#d59a66"/><ellipse cx="512" cy="660" rx="330" ry="300" fill="#8a5730"/><circle cx="404" cy="600" r="38" fill="#24150b"/><circle cx="620" cy="600" r="38" fill="#24150b"/><ellipse cx="512" cy="742" rx="158" ry="122" fill="#f0cfa6"/><path d="M452 682 Q512 650 572 682 Q572 726 512 744 Q452 726 452 682 Z" fill="#2e1b10"/></svg>Weather Bear</h1>
       <p class="hello" id="hello">Hello, Ken</p>
     </div>
     <button class="place-btn" id="placeBtn" type="button" aria-expanded="false" aria-controls="sheet">
@@ -278,18 +331,25 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
   <p class="notice" id="notice" hidden></p>
 
   <nav class="tabs" role="tablist" aria-label="Views">
-    <button class="tab" role="tab" id="tab-today" aria-controls="p-today" aria-selected="true" type="button" data-tab="today">Today</button>
-    <button class="tab" role="tab" id="tab-radar" aria-controls="p-radar" aria-selected="false" type="button" data-tab="radar">Radar</button>
-    <button class="tab" role="tab" id="tab-alerts" aria-controls="p-alerts" aria-selected="false" type="button" data-tab="alerts">Alerts<span class="dot" id="alertDot" hidden></span></button>
-    <button class="tab" role="tab" id="tab-tropics" aria-controls="p-tropics" aria-selected="false" type="button" data-tab="tropics">Tropics</button>
+    <button class="tab" role="tab" id="tab-today" aria-controls="p-today" aria-selected="true" type="button" data-tab="today"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="2.5" x2="12" y2="4.5"/><line x1="12" y1="19.5" x2="12" y2="21.5"/><line x1="2.5" y1="12" x2="4.5" y2="12"/><line x1="19.5" y1="12" x2="21.5" y2="12"/><line x1="5.3" y1="5.3" x2="6.7" y2="6.7"/><line x1="17.3" y1="17.3" x2="18.7" y2="18.7"/><line x1="5.3" y1="18.7" x2="6.7" y2="17.3"/><line x1="17.3" y1="6.7" x2="18.7" y2="5.3"/></g></svg>Today</button>
+    <button class="tab" role="tab" id="tab-radar" aria-controls="p-radar" aria-selected="false" type="button" data-tab="radar"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.8"/><line x1="12" y1="12" x2="18.4" y2="5.6"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>Radar</button>
+    <button class="tab" role="tab" id="tab-alerts" aria-controls="p-alerts" aria-selected="false" type="button" data-tab="alerts"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 1 21h22L12 2zm1 15h-2v-2h2v2zm0-4h-2V9h2v4z"/></svg>Alerts<span class="dot" id="alertDot" hidden></span></button>
+    <button class="tab" role="tab" id="tab-tropics" aria-controls="p-tropics" aria-selected="false" type="button" data-tab="tropics"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M16 3.5C10.5 3 6 6.8 6 12"/><path d="M8 20.5c5.5.5 10-3.3 10-8.5"/></svg>Tropics</button>
   </nav>
 
   <section class="panel" id="p-today" role="tabpanel" aria-labelledby="tab-today">
-    <div class="card skeleton">Loading the forecast…</div>
+    <div class="contents" id="todayTop"><div class="card skeleton">Loading the forecast…</div></div>
+    <div class="card mini-radar">
+      <div class="mini-head"><p class="label">Radar</p><button class="mini-open" type="button" onclick="showTab('radar')">Full radar ›</button></div>
+      <div id="miniMap"></div>
+      <p class="mini-foot"><span id="miniTime">Loading radar…</span><span class="legend"><span>Light</span><i></i><span>Heavy</span></span></p>
+    </div>
+    <div class="contents" id="todayBottom"></div>
   </section>
 
   <section class="panel" id="p-radar" role="tabpanel" aria-labelledby="tab-radar" hidden>
     <div class="map-wrap"><div id="map"></div></div>
+    <div class="card radar-controls">
     <div class="map-bar">
       <button class="pill-btn" id="playBtn" type="button" disabled>
         <svg viewBox="0 0 24 24" aria-hidden="true" id="playIcon"><path fill="currentColor" d="M7 4v16l13-8z"/></svg>
@@ -298,6 +358,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
       <span class="frame-time" id="frameTime">Loading radar…</span>
     </div>
     <div class="legend"><span>Light</span><i></i><span>Heavy</span></div>
+    </div>
   </section>
 
   <section class="panel" id="p-alerts" role="tabpanel" aria-labelledby="tab-alerts" hidden></section>
@@ -400,7 +461,7 @@ async function refresh(force) {
     const last = store.get("kw.last");
     if (last && last.place && last.place.name === place.name && !forecast) { forecast = last.forecast; alerts = last.alerts; fetchedAt = last.fetchedAt; }
     setNotice(forecast ? `<strong>Showing the forecast from ${ago(fetchedAt)}.</strong> Couldn't reach the weather service just now. <button class="pill-btn" type="button" onclick="refresh(true)">Try again</button>` : "");
-    if (!forecast) $("p-today").innerHTML = `<div class="card empty"><strong>Couldn't load the forecast</strong>Check your connection, then try again.<br><br><button class="pill-btn" type="button" onclick="refresh(true)">Try again</button></div>`;
+    if (!forecast) $("todayTop").innerHTML = `<div class="card empty"><strong>Couldn't load the forecast</strong>Check your connection, then try again.<br><br><button class="pill-btn" type="button" onclick="refresh(true)">Try again</button></div>`;
   } finally { loading = false; }
   if (forecast) renderAll();
 }
@@ -446,7 +507,7 @@ function renderToday() {
   d.sunset.forEach((s) => { const m = mins(s); if (m > nowM && m < tN) events.push({ m, s, kind: "Sunset" }); });
   h.time.forEach((t, i) => {
     const m = mins(t), pp = h.precipitation_probability ? h.precipitation_probability[i] : null;
-    items.push(`<div class="hour${i === 0 ? " now" : ""}"><span class="h">${i === 0 ? "Now" : fmtHour(t)}</span>${icon(h.weather_code[i], h.is_day[i] === 1)}<span class="tt num">${Math.round(h.temperature_2m[i])}°</span><span class="pp num">${pp != null && pp >= 10 ? pp + "%" : ""}</span></div>`);
+    items.push(`<div class="hour${i === 0 ? " now" : ""}"><span class="h">${i === 0 ? "Now" : fmtHour(t)}</span>${icon(h.weather_code[i], h.is_day[i] === 1)}<span class="tt num" style="color:var(${tcol(h.temperature_2m[i])})">${Math.round(h.temperature_2m[i])}°</span><span class="pp num">${pp != null && pp >= 10 ? pp + "%" : ""}</span></div>`);
     events.filter((e) => e.m > m && e.m < m + 60).forEach((e) => items.push(`<div class="hour sunev"><span class="h">${e.kind}</span><svg viewBox="0 0 24 24" aria-hidden="true">${sunG(12, 15, 4.2)}<rect x="0" y="16" width="24" height="8" fill="var(--sun-soft)"/><line x1="3" y1="16" x2="21" y2="16" stroke="var(--sun)" stroke-width="1.6" stroke-linecap="round"/></svg><span class="tt num">${fmtTime(e.s).replace(" ", " ")}</span><span class="pp"></span></div>`));
   });
 
@@ -456,11 +517,12 @@ function renderToday() {
     const a = (d.temperature_2m_min[i] - lo) / span * 100, b = (d.temperature_2m_max[i] - lo) / span * 100;
     const pp = d.precipitation_probability_max ? d.precipitation_probability_max[i] : null;
     const dot = i === 0 ? `<b style="left:${Math.min(100, Math.max(0, (c.temperature_2m - lo) / span * 100))}%"></b>` : "";
-    return `<li class="day"><span class="dn">${dayName(t, i)}</span>${icon(d.weather_code[i], true)}<span class="pp num">${pp != null && pp >= 20 ? pp + "%" : ""}</span><span class="lo num">${Math.round(d.temperature_2m_min[i])}°</span><span class="bar"><i style="left:${a}%;right:${100 - b}%"></i>${dot}</span><span class="hi num">${Math.round(d.temperature_2m_max[i])}°</span></li>`;
+    return `<li class="day"><span class="dn">${dayName(t, i)}</span>${icon(d.weather_code[i], true)}<span class="pp num">${pp != null && pp >= 20 ? pp + "%" : ""}</span><span class="lo num" style="color:var(${tcol(d.temperature_2m_min[i])})">${Math.round(d.temperature_2m_min[i])}°</span><span class="bar"><i style="left:${a}%;right:${100 - b}%;--a:var(${tcol(d.temperature_2m_min[i])});--b:var(${tcol(d.temperature_2m_max[i])})"></i>${dot}</span><span class="hi num" style="color:var(${tcol(d.temperature_2m_max[i])})">${Math.round(d.temperature_2m_max[i])}°</span></li>`;
   }).join("");
 
   const uv = d.uv_index_max ? Math.round(d.uv_index_max[0]) : null;
-  $("p-today").innerHTML = `
+  setSky(c, d);
+  $("todayTop").innerHTML = `
     <div class="hero">
       <p class="hero-temp num">${Math.round(c.temperature_2m)}<sup>°F</sup></p>
       <div class="hero-icon">${icon(c.weather_code, c.is_day === 1)}</div>
@@ -480,9 +542,27 @@ function renderToday() {
       <div class="stat"><dt>Humidity</dt><dd class="num">${Math.round(c.relative_humidity_2m)}%</dd></div>
       <div class="stat"><dt>${d.precipitation_probability_max ? "Rain today" : "UV max"}</dt><dd class="num">${d.precipitation_probability_max ? (d.precipitation_probability_max[0] ?? 0) + "%" : uv}</dd></div>
     </dl>
-    <div class="card"><p class="label">Next 24 hours</p><div class="hourly" tabindex="0" aria-label="Hourly forecast">${items.join("")}</div></div>
+    <div class="card"><p class="label">Next 24 hours</p><div class="hourly" tabindex="0" aria-label="Hourly forecast">${items.join("")}</div></div>`;
+  $("todayBottom").innerHTML = `
     <div class="card"><p class="label">7 days</p><ul class="days">${days}</ul></div>
     <p class="foot">Updated ${ago(fetchedAt)}${uv != null ? ` · UV index up to ${uv} today` : ""}${c.wind_gusts_10m ? ` · Gusts to ${Math.round(c.wind_gusts_10m)} mph` : ""}${DEMO ? "" : ` · <button class="pill-btn" type="button" onclick="refresh(true)" style="padding:3px 10px;font-size:.78rem">Refresh</button>`}</p>`;
+  updateMiniRadar();
+}
+// Temperature color steps, matched to the bear palette (cold blues to hot reds).
+function tcol(t) { return t <= 32 ? "--t-frigid" : t < 50 ? "--t-cold" : t < 65 ? "--t-cool" : t < 80 ? "--t-warm" : t < 90 ? "--t-hot" : "--t-scorch"; }
+const SKY_TOP = { clear: "#1e5ea8", partly: "#2a66a6", cloudy: "#4b5f74", rain: "#31455a", storm: "#262a40", snow: "#566f8a", dawn: "#3a5a99", dusk: "#2c3d78", night: "#0b1630", "night-cloudy": "#1a2233", "night-rain": "#121a28" };
+function setSky(c, d) {
+  const k = kind(c.weather_code), now = mins(c.time), day = c.is_day === 1, fair = k === "clear" || k === "partly";
+  let sky;
+  if (fair && Math.abs(now - mins(d.sunrise[0])) <= 40) sky = "dawn";
+  else if (fair && Math.abs(now - mins(d.sunset[0])) <= 40) sky = "dusk";
+  else if (k === "storm") sky = "storm";
+  else if (k === "rain" || k === "drizzle") sky = day ? "rain" : "night-rain";
+  else if (k === "snow") sky = "snow";
+  else if (k === "cloudy" || k === "fog") sky = day ? "cloudy" : "night-cloudy";
+  else sky = day ? k : "night";
+  document.documentElement.dataset.sky = sky;
+  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.content = SKY_TOP[sky];
 }
 function placeShort() { return place.name; }
 function fmtIso(s) {
@@ -540,15 +620,44 @@ async function initRadar() {
     if (isDark()) $("map").classList.add("dark-tiles");
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors' }).addTo(map);
     placeMarker = L.circleMarker([place.lat, place.lon], { radius: 6, color: "#fff", weight: 2, fillColor: "#1d63c4", fillOpacity: 1 }).addTo(map);
-    const j = await getJSON("https://api.rainviewer.com/public/weather-maps.json");
-    radarHost = j.host; radarFrames = (j.radar && j.radar.past) || [];
-    if (!radarFrames.length) throw new Error("no frames");
+    const ri = await radarIndex(); radarHost = ri.host; radarFrames = ri.frames;
     showFrame(radarFrames.length - 1);
     $("playBtn").disabled = false;
     if (storms) drawStorms();
   } catch (e) {
     $("frameTime").textContent = "Radar unavailable right now";
   }
+}
+// One RainViewer index shared by both maps, reused for 5 minutes.
+let radarIdx = null, radarIdxAt = 0;
+async function radarIndex() {
+  if (radarIdx && Date.now() - radarIdxAt < 5 * 60000) return radarIdx;
+  const j = await getJSON("https://api.rainviewer.com/public/weather-maps.json");
+  const frames = (j.radar && j.radar.past) || []; if (!frames.length) throw new Error("no frames");
+  radarIdx = { host: j.host, frames }; radarIdxAt = Date.now(); return radarIdx;
+}
+// Small, still radar on Today; a tap opens the full Radar tab.
+let mini = null, miniLayer = null, miniPath = "", miniMarker = null;
+async function updateMiniRadar() {
+  if (DEMO) { $("miniMap").innerHTML = `<div class="empty">The live rain map around ${esc(place.name)} shows here once the app is hosted.</div>`; $("miniMap").style.height = "auto"; $("miniTime").textContent = "Preview"; return; }
+  try {
+    await loadLeaflet();
+    if (!mini) {
+      mini = L.map("miniMap", { zoomControl: false, dragging: false, touchZoom: false, scrollWheelZoom: false, doubleClickZoom: false, boxZoom: false, keyboard: false }).setView([place.lat, place.lon], 6);
+      mini.attributionControl.setPrefix(false);
+      if (isDark()) $("miniMap").classList.add("dark-tiles");
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>' }).addTo(mini);
+      miniMarker = L.circleMarker([place.lat, place.lon], { radius: 6, color: "#fff", weight: 2, fillColor: "#1d63c4", fillOpacity: 1 }).addTo(mini);
+      mini.on("click", () => showTab("radar"));
+    } else { mini.setView([place.lat, place.lon], 6); miniMarker.setLatLng([place.lat, place.lon]); }
+    const ri = await radarIndex(), f = ri.frames[ri.frames.length - 1];
+    if (f.path !== miniPath) {
+      const old = miniLayer;
+      miniLayer = L.tileLayer(`${ri.host}${f.path}/256/{z}/{x}/{y}/2/1_1.png`, { opacity: 0.8, maxNativeZoom: 7, maxZoom: 10, zIndex: 5, attribution: '<a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>' }).addTo(mini);
+      miniPath = f.path; if (old) setTimeout(() => mini.removeLayer(old), 1500);
+    }
+    $("miniTime").innerHTML = `<b>Latest</b> · ${frameLabel(f.time)}`;
+  } catch (e) { $("miniTime").textContent = "Radar unavailable right now"; }
 }
 function togglePlay() {
   if (playing) { clearInterval(playing); playing = null; $("playLabel").textContent = "Play last hour"; $("playIcon").innerHTML = '<path fill="currentColor" d="M7 4v16l13-8z"/>'; showFrame(radarFrames.length - 1); return; }
@@ -624,6 +733,7 @@ function showTab(t) {
   document.querySelectorAll(".tab").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === t)));
   ["today", "radar", "alerts", "tropics"].forEach((n) => { $("p-" + n).hidden = n !== t; });
   if (t === "radar") initRadar();
+  if (t === "today" && mini) mini.invalidateSize();
   if (t === "tropics" && storms === null && !stormsNote) loadTropics().then(() => { renderTropics(); drawStorms(); });
   if (t !== "radar" && playing) togglePlay();
   window.scrollTo({ top: 0 });
@@ -640,8 +750,9 @@ function renderAll() {
 function setPlace(p) {
   place = p; store.set("kw.place", p); $("sheet").hidden = true; $("placeBtn").setAttribute("aria-expanded", "false");
   forecast = null; alerts = null; fetchedAt = 0; $("placeName").textContent = p.name;
-  $("p-today").innerHTML = `<div class="card skeleton">Loading the forecast…</div>`;
+  $("todayTop").innerHTML = `<div class="card skeleton">Loading the forecast…</div>`; $("todayBottom").innerHTML = "";
   if (map) { map.setView([p.lat, p.lon], 7); placeMarker && placeMarker.setLatLng([p.lat, p.lon]); }
+  if (mini) { mini.setView([p.lat, p.lon], 6); miniMarker.setLatLng([p.lat, p.lon]); }
   refresh(true);
 }
 // Turn coordinates into "Town, ST" with the Weather Service's points lookup (US only, no key).
