@@ -29,6 +29,9 @@ Watches, warnings and advisories from the U.S. National Weather Service for the 
 TROPICAL STORMS
 Active storms and the tropical outlook from the National Hurricane Center during hurricane season.
 
+WIDGETS
+Put the temperature, conditions and today's high and low on your Home Screen or Lock Screen.
+
 ANY PLACE
 Use your location or search for any city.
 
@@ -60,10 +63,10 @@ weather,radar,forecast,hurricane,storm,alerts,NWS,rain,tropical,ad-free,hourly,t
 
 ## App Review notes (paste into "Notes" for the reviewer)
 Weather Bear needs no sign-in. Allow location, or tap the place name and search any city.
-Native features: iOS location services. Weather data comes from public government and
+Native features: iOS location services and Home Screen / Lock Screen widgets (WidgetKit). Weather data comes from public government and
 open-data services; the app has no server or account system.
 
 ## Screenshots
 Required: iPhone 6.9" display, 1320 × 2868 portrait, 1 to 10 images, PNG or JPEG with no transparency.
-Suggested set: Today, Hourly + 7-day, Radar, Alerts, Tropics.
+Suggested set: Today, Hourly + 7-day, Radar, Alerts, Tropics, and a Home Screen with the widget.
 The app is iPhone-only, so no iPad screenshots are needed.

@@ -27,6 +27,8 @@
    Submit for Review.
 
 ## Before submitting
-- Guideline 4.2 rejects apps that are just a website in a wrapper. The app already bundles its
-  code (works without the website) and uses native iOS location. The planned extra native
-  feature is a **home screen widget** showing the current temperature.
+- Guideline 4.2 rejects apps that are just a website in a wrapper. The app bundles its code
+  (it doesn't load the website), uses native iOS location, and ships a **WidgetKit widget**
+  (`ios/App/WeatherBearWidget`) for the Home Screen (small, medium) and Lock Screen
+  (circular, rectangular, inline). The widget uses your location, or Athens, GA when location is off.
+- The app greets people with "Good morning" instead of "Good morning, Ken"; the website still uses the name.

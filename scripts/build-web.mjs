@@ -23,6 +23,9 @@ html = html.replace("</head>", `<script src="capacitor.js"></script><script src=
 // The website tells people to fix location in Safari settings; in the app it's the app's own settings.
 html = html.replaceAll("Settings › Safari › Location", "Settings › Weather Bear › Location");
 
+// The website greets Ken by name; the App Store app is for everyone.
+html = html.replace(/Good (morning|afternoon|evening), Ken/g, "Good $1");
+
 // Guideline 5.1.1 wants the privacy policy reachable inside the app.
 must("</body>");
 html = html.replace("</body>", `<p style="text-align:center;font-size:13px;margin:24px 0 calc(24px + env(safe-area-inset-bottom))"><a href="privacy.html">Privacy</a> · <a href="support.html">Support</a></p>\n</body>`);

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1502A66A7627FBEA94C8E620 /* WeatherBearWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB0D14A8D1CADB018FD6A1E9 /* WeatherBearWidget.swift */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		4D22ABE92AF431CB00220026 /* CapApp-SPM in Frameworks */ = {isa = PBXBuildFile; productRef = 4D22ABE82AF431CB00220026 /* CapApp-SPM */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
@@ -15,10 +16,41 @@
 		504EC30F1FED79650016851F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 504EC30E1FED79650016851F /* Assets.xcassets */; };
 		504EC3121FED79650016851F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 504EC3101FED79650016851F /* LaunchScreen.storyboard */; };
 		50B271D11FEDC1A000F3C39B /* public in Resources */ = {isa = PBXBuildFile; fileRef = 50B271D01FEDC1A000F3C39B /* public */; };
+		93C1AB5C7FE31C5EB9BDF479 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 71FA6F4F25A11E7FA80A234B /* Foundation.framework */; };
 		9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9582B6822FE993A50072D4E8 /* SceneDelegate.swift */; };
+		A2DF247F1BEA48D54FBA0535 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0741471F257A1C16780DC12B /* CoreLocation.framework */; };
+		AE68708FD375ED761D3F84FE /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20071C43E311AA5BEBE46BEC /* SwiftUI.framework */; };
+		F02331C2858CDD71FF12F830 /* WeatherBearWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = F4A4853D1C13B223115E4075 /* WeatherBearWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		FCEC5EA6D021811AE2194870 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6AB5D9379EAD91152460A4F /* WidgetKit.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		3A0A81746EA7003D3B31F2E1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 504EC2FC1FED79650016851F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 06DB3765090206C0AFECA555;
+			remoteInfo = WeatherBearWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A2E78C6ECA373A8A696E15AB /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				F02331C2858CDD71FF12F830 /* WeatherBearWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		0741471F257A1C16780DC12B /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		20071C43E311AA5BEBE46BEC /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
 		50379B222058CBB4000EE86E /* capacitor.config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = capacitor.config.json; sourceTree = "<group>"; };
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -28,8 +60,13 @@
 		504EC3111FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		50B271D01FEDC1A000F3C39B /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
+		71FA6F4F25A11E7FA80A234B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		839061EBCCDCB570247F73E7 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9582B6822FE993A50072D4E8 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		958DCC722DB07C7200EA8C5F /* debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = debug.xcconfig; path = ../debug.xcconfig; sourceTree = SOURCE_ROOT; };
+		C6AB5D9379EAD91152460A4F /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		F4A4853D1C13B223115E4075 /* WeatherBearWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WeatherBearWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FB0D14A8D1CADB018FD6A1E9 /* WeatherBearWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WeatherBearWidget.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +75,17 @@
 			buildActionMask = 2147483647;
 			files = (
 				4D22ABE92AF431CB00220026 /* CapApp-SPM in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6985E5B75AD112A776AA71D7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				93C1AB5C7FE31C5EB9BDF479 /* Foundation.framework in Frameworks */,
+				FCEC5EA6D021811AE2194870 /* WidgetKit.framework in Frameworks */,
+				AE68708FD375ED761D3F84FE /* SwiftUI.framework in Frameworks */,
+				A2DF247F1BEA48D54FBA0535 /* CoreLocation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -50,6 +98,8 @@
 				958DCC722DB07C7200EA8C5F /* debug.xcconfig */,
 				504EC3061FED79650016851F /* App */,
 				504EC3051FED79650016851F /* Products */,
+				AC803E4A1CC933F36FA86016 /* Frameworks */,
+				867449D3B9F3F5269E8AAAF7 /* WeatherBearWidget */,
 			);
 			sourceTree = "<group>";
 		};
@@ -57,6 +107,7 @@
 			isa = PBXGroup;
 			children = (
 				504EC3041FED79650016851F /* App.app */,
+				F4A4853D1C13B223115E4075 /* WeatherBearWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -77,9 +128,55 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		867449D3B9F3F5269E8AAAF7 /* WeatherBearWidget */ = {
+			isa = PBXGroup;
+			children = (
+				FB0D14A8D1CADB018FD6A1E9 /* WeatherBearWidget.swift */,
+				839061EBCCDCB570247F73E7 /* Info.plist */,
+			);
+			name = WeatherBearWidget;
+			path = WeatherBearWidget;
+			sourceTree = "<group>";
+		};
+		AC803E4A1CC933F36FA86016 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D2443C5D487EBA936C576610 /* iOS */,
+				C6AB5D9379EAD91152460A4F /* WidgetKit.framework */,
+				20071C43E311AA5BEBE46BEC /* SwiftUI.framework */,
+				0741471F257A1C16780DC12B /* CoreLocation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D2443C5D487EBA936C576610 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				71FA6F4F25A11E7FA80A234B /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		06DB3765090206C0AFECA555 /* WeatherBearWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8732E3E128F34894B6D69FEB /* Build configuration list for PBXNativeTarget "WeatherBearWidget" */;
+			buildPhases = (
+				9A2422EC57CE83FE384B6BBE /* Sources */,
+				6985E5B75AD112A776AA71D7 /* Frameworks */,
+				FF6176F5937A0EA38197D2B7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WeatherBearWidget;
+			productName = WeatherBearWidget;
+			productReference = F4A4853D1C13B223115E4075 /* WeatherBearWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		504EC3031FED79650016851F /* App */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 504EC3161FED79650016851F /* Build configuration list for PBXNativeTarget "App" */;
@@ -87,10 +184,12 @@
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
+				A2E78C6ECA373A8A696E15AB /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				646FDE44C3B56087641856A2 /* PBXTargetDependency */,
 			);
 			name = App;
 			packageProductDependencies = (
@@ -133,6 +232,7 @@
 			projectRoot = "";
 			targets = (
 				504EC3031FED79650016851F /* App */,
+				06DB3765090206C0AFECA555 /* WeatherBearWidget */,
 			);
 		};
 /* End PBXProject section */
@@ -151,6 +251,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FF6176F5937A0EA38197D2B7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -163,7 +270,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9A2422EC57CE83FE384B6BBE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1502A66A7627FBEA94C8E620 /* WeatherBearWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		646FDE44C3B56087641856A2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = WeatherBearWidget;
+			target = 06DB3765090206C0AFECA555 /* WeatherBearWidget */;
+			targetProxy = 3A0A81746EA7003D3B31F2E1 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		504EC30B1FED79650016851F /* Main.storyboard */ = {
@@ -185,6 +309,55 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		2F65837E0BB00350AD33C18A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = WeatherBearWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kenlill.weatherbear.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		31935592FAFA875247E1D8E7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = WeatherBearWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kenlill.weatherbear.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		504EC3141FED79650016851F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 958DCC722DB07C7200EA8C5F /* debug.xcconfig */;
@@ -355,6 +528,15 @@
 			buildConfigurations = (
 				504EC3171FED79650016851F /* Debug */,
 				504EC3181FED79650016851F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8732E3E128F34894B6D69FEB /* Build configuration list for PBXNativeTarget "WeatherBearWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				31935592FAFA875247E1D8E7 /* Release */,
+				2F65837E0BB00350AD33C18A /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
