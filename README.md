@@ -1,4 +1,4 @@
-# Ken's Weather
+# Weather Bear
 
 An ad-free, single-page weather app: current conditions, sunrise and sunset, hourly and 7-day forecasts, National Weather Service alerts, radar, and National Hurricane Center storm tracking.
 
