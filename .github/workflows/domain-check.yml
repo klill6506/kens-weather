@@ -5,15 +5,17 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 70
     steps:
-      - name: DNS
+      - name: Wait for the HTTPS certificate
         run: |
-          for r in 1.1.1.1 8.8.8.8; do echo "== resolver $r"; dig +noall +answer weather-bear.kenlill.com @$r; done
-          echo "== NS"; dig +short NS kenlill.com
-      - name: HTTP
-        run: |
-          echo "== http"; curl -sS -o /dev/null -D - -m 20 http://weather-bear.kenlill.com/ | head -15 || true
-          echo "== https"; curl -sS -o /tmp/p.html -D - -m 20 https://weather-bear.kenlill.com/ | head -15 || true
-          grep -o "<title>[^<]*</title>" /tmp/p.html || true
-          echo "== https cert"; echo | openssl s_client -connect weather-bear.kenlill.com:443 -servername weather-bear.kenlill.com 2>/dev/null | openssl x509 -noout -subject -issuer -ext subjectAltName 2>/dev/null || true
-          echo "== old address"; curl -sS -o /dev/null -D - -m 20 https://klill6506.github.io/kens-weather/ | head -8 || true
+          for i in $(seq 1 60); do
+            if curl -sS -o /tmp/p.html -m 20 https://weather-bear.kenlill.com/ 2>/dev/null; then
+              echo "HTTPS OK after $i checks"; grep -o "<title>[^<]*</title>" /tmp/p.html
+              curl -sS -o /dev/null -D - -m 20 https://weather-bear.kenlill.com/privacy.html | head -1
+              curl -sS -o /dev/null -D - -m 20 http://weather-bear.kenlill.com/ | grep -i "^HTTP\|^location"
+              exit 0
+            fi
+            sleep 60
+          done
+          echo "HTTPS still not ready after an hour"; exit 1
