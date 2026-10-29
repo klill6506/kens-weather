@@ -10,3 +10,5 @@
   tropical map service, which allows browser access; a Coolify relay for
   NHC's CurrentStorms.json was built, then skipped as unnecessary. If NWS is
   down the tab shows "Storm list unavailable" plus the outlook map — accepted.
+- **Custom domain weather-bear.kenlill.com** — Ken, 2026-10-29. Stays on GitHub
+  Pages (CNAME file + one DNS CNAME record), not Coolify like election.kenlill.com.
