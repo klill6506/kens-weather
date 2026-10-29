@@ -1,0 +1,19 @@
+name: Domain check
+on:
+  push:
+    branches: [domain-check]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: DNS
+        run: |
+          for r in 1.1.1.1 8.8.8.8; do echo "== resolver $r"; dig +noall +answer weather-bear.kenlill.com @$r; done
+          echo "== NS"; dig +short NS kenlill.com
+      - name: HTTP
+        run: |
+          echo "== http"; curl -sS -o /dev/null -D - -m 20 http://weather-bear.kenlill.com/ | head -15 || true
+          echo "== https"; curl -sS -o /tmp/p.html -D - -m 20 https://weather-bear.kenlill.com/ | head -15 || true
+          grep -o "<title>[^<]*</title>" /tmp/p.html || true
+          echo "== https cert"; echo | openssl s_client -connect weather-bear.kenlill.com:443 -servername weather-bear.kenlill.com 2>/dev/null | openssl x509 -noout -subject -issuer -ext subjectAltName 2>/dev/null || true
+          echo "== old address"; curl -sS -o /dev/null -D - -m 20 https://klill6506.github.io/kens-weather/ | head -8 || true
