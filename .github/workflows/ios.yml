@@ -3,8 +3,8 @@
 # - Every push to the app branch, and every pull request, runs "Build check":
 #   an unsigned simulator build that proves the app compiles. No Apple account needed.
 # - "Upload to TestFlight" runs only when started by hand (Actions tab > iOS > Run workflow
-#   > upload = true). It needs these repository secrets, all from Ken's Apple Developer account:
-#     APPLE_TEAM_ID            10-character Team ID (developer.apple.com > Membership)
+#   > upload = true). The Team ID (LGCD527TGY, Ken's individual account) is in the project and
+#   ExportOptions.plist. It needs these repository secrets from App Store Connect:
 #     ASC_KEY_ID               App Store Connect API key ID
 #     ASC_ISSUER_ID            App Store Connect API issuer ID
 #     ASC_API_KEY_P8           full text of the downloaded AuthKey_XXXX.p8 file
@@ -67,7 +67,6 @@ jobs:
           printf '%s' "$ASC_API_KEY_P8" > "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8"
       - name: Archive (signed automatically in the cloud)
         env:
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
@@ -76,18 +75,16 @@ jobs:
             -allowProvisioningUpdates \
             -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8" \
             -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
-            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
+            CODE_SIGN_STYLE=Automatic \
             CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
             archive
       - name: Export and upload to App Store Connect
         env:
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
-          sed "s/TEAM_ID_PLACEHOLDER/$APPLE_TEAM_ID/" ios/ExportOptions.plist > "$RUNNER_TEMP/ExportOptions.plist"
           xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/WeatherBear.xcarchive" \
-            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export" \
+            -exportOptionsPlist ios/ExportOptions.plist -exportPath "$RUNNER_TEMP/export" \
             -allowProvisioningUpdates \
             -authenticationKeyPath "$RUNNER_TEMP/keys/AuthKey_$ASC_KEY_ID.p8" \
             -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID"

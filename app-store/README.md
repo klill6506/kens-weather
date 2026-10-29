@@ -20,7 +20,7 @@
 4. **Make an API key**: App Store Connect › Users and Access › Integrations › App Store Connect API ›
    Team Keys › generate, role **Admin**. Download the .p8 file (one chance only).
 5. **Add four GitHub secrets** (repo Settings › Secrets and variables › Actions):
-   `APPLE_TEAM_ID`, `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_API_KEY_P8` (paste the whole .p8 text).
+   `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_API_KEY_P8` (paste the whole .p8 text). The Team ID is already in the project.
 6. **Run the upload**: Actions › iOS › Run workflow › upload ✔. The build shows up in TestFlight;
    install the TestFlight app on your iPhone and try it.
 7. **Fill in the listing** from `listing.md`, add screenshots, answer App Privacy, and press
