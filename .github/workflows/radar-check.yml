@@ -1,0 +1,25 @@
+name: Radar check
+on:
+  push:
+    branches: [radar-check]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm i --no-save playwright@1.49.1 && npx playwright install --with-deps chromium
+      - run: |
+          echo "--- kenlill.com HSTS"; curl -sSI -m 20 https://kenlill.com/ | grep -i "strict-transport\|^HTTP" || true
+          curl -sSI -m 20 https://election.kenlill.com/ | grep -i "strict-transport\|^HTTP" || true
+          echo "--- rainviewer index"; curl -sS -m 20 https://api.rainviewer.com/public/weather-maps.json | head -c 1500; echo
+      - run: |
+          mkdir -p out
+          python3 -m http.server 8080 >/dev/null 2>&1 &
+          sleep 2
+          node diag/radar.mjs http://localhost:8080/index.html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: shots, path: out }
