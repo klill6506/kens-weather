@@ -5,17 +5,32 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 70
+    timeout-minutes: 120
     steps:
+      - name: Check the pages over http
+        run: |
+          for i in $(seq 1 20); do
+            p=$(curl -s -o /dev/null -w "%{http_code}" -m 20 http://weather-bear.kenlill.com/privacy.html)
+            s=$(curl -s -o /dev/null -w "%{http_code}" -m 20 http://weather-bear.kenlill.com/support.html)
+            echo "check $i: privacy=$p support=$s"
+            if [ "$p" = 200 ] && [ "$s" = 200 ]; then
+              curl -s -m 20 http://weather-bear.kenlill.com/privacy.html | grep -o "<title>[^<]*</title>"
+              curl -s -m 20 http://weather-bear.kenlill.com/support.html | grep -o "<title>[^<]*</title>"
+              curl -s -m 20 http://weather-bear.kenlill.com/ | grep -o "<title>[^<]*</title>"
+              break
+            fi
+            sleep 30
+          done
       - name: Wait for the HTTPS certificate
         run: |
-          for i in $(seq 1 60); do
+          for i in $(seq 1 100); do
             if curl -sS -o /tmp/p.html -m 20 https://weather-bear.kenlill.com/ 2>/dev/null; then
               echo "HTTPS OK after $i checks"; grep -o "<title>[^<]*</title>" /tmp/p.html
               curl -sS -o /dev/null -D - -m 20 https://weather-bear.kenlill.com/privacy.html | head -1
+              curl -sS -o /dev/null -D - -m 20 https://weather-bear.kenlill.com/support.html | head -1
               curl -sS -o /dev/null -D - -m 20 http://weather-bear.kenlill.com/ | grep -i "^HTTP\|^location"
               exit 0
             fi
             sleep 60
           done
-          echo "HTTPS still not ready after an hour"; exit 1
+          echo "HTTPS still not ready"; exit 1
