@@ -5,8 +5,15 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 330
     steps:
+      - name: Why HTTPS fails
+        run: |
+          sudo apt-get install -y -qq dnsutils >/dev/null 2>&1 || true
+          echo "--- CAA kenlill.com"; dig +short CAA kenlill.com; echo "--- CAA weather-bear"; dig +short CAA weather-bear.kenlill.com
+          echo "--- CNAME"; dig +short weather-bear.kenlill.com
+          echo "--- AAAA"; dig +short AAAA weather-bear.kenlill.com
+          echo "--- TLS"; curl -sv -o /dev/null -m 20 https://weather-bear.kenlill.com/ 2>&1 | grep -i "subject\|issuer\|SSL\|error\|alert" | head -12
       - name: Check the pages over http
         run: |
           for i in $(seq 1 20); do
@@ -23,7 +30,7 @@ jobs:
           done
       - name: Wait for the HTTPS certificate
         run: |
-          for i in $(seq 1 100); do
+          for i in $(seq 1 300); do
             if curl -sS -o /tmp/p.html -m 20 https://weather-bear.kenlill.com/ 2>/dev/null; then
               echo "HTTPS OK after $i checks"; grep -o "<title>[^<]*</title>" /tmp/p.html
               curl -sS -o /dev/null -D - -m 20 https://weather-bear.kenlill.com/privacy.html | head -1
