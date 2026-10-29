@@ -5,7 +5,7 @@ Paste these into App Store Connect. Character limits are Apple's.
 **Name** (30): Weather Bear: Radar & Forecast
 ("Weather Bear" alone is taken on the App Store. Fallback: Weather Bear by Ken Lill. The name under the icon on the Home Screen stays "Weather Bear".)
 
-**Subtitle** (30): Ad-free weather, alerts, storms
+**Subtitle** (30): Ad-free forecasts and alerts
 
 **Category**: Weather (primary). Secondary: none.
 
