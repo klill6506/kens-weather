@@ -10,6 +10,10 @@ See README.md for the data sources (all free, no API keys).
   build step.
 - Hosted on **GitHub Pages**: deploy from branch `main`, folder `/` (root).
   Pushing to `main` redeploys the site.
+- Custom domain **weather-bear.kenlill.com** via the `CNAME` file in the repo
+  root (don't delete it). DNS: a CNAME record `weather-bear` → `klill6506.github.io`
+  at kenlill.com's DNS host; it overrides the `*.kenlill.com` wildcard that points
+  at Ken's Coolify server.
 - `.nojekyll` is present, so Pages serves every file in the repo as-is —
   including these memory files.
 - **The repo is PUBLIC.** Never commit API keys, tokens, home address /
