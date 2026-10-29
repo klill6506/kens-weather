@@ -302,6 +302,20 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .results { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
 .results button { width: 100%; text-align: left; background: none; border: 0; border-top: 1px solid var(--line); padding: 10px 2px; cursor: pointer; }
 .results button small { color: var(--muted); }
+/* Saved places: tap a row to switch, the × removes it. Temps load when the sheet opens. */
+.sheet .label { margin: 4px 0 -6px; }
+.saved { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.saved li { display: flex; align-items: center; border-top: 1px solid var(--line); }
+.saved li:first-child { border-top: 0; }
+.saved li.on { background: var(--accent-soft); border-radius: 10px; border-top-color: transparent; }
+.saved li.on + li { border-top-color: transparent; }
+.saved .go { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; background: none; border: 0; padding: 9px 6px; cursor: pointer; text-align: left; }
+.saved .go svg { width: 26px; height: 26px; flex: none; }
+.saved .n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; }
+.saved .t { font-family: var(--font-display); font-weight: 600; font-size: 1.1rem; }
+.saved .rm { flex: none; width: 40px; height: 40px; display: grid; place-items: center; border: 0; background: none; color: var(--muted); border-radius: 50%; cursor: pointer; }
+.saved .rm svg { width: 16px; height: 16px; }
+.saved .hint { border: 0; color: var(--muted); font-size: 0.88rem; padding: 2px 0; }
 
 .skeleton { color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; animation: none !important; } }
@@ -329,6 +343,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
       <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 3h-2.07A7 7 0 0 0 13 5.07V3h-2v2.07A7 7 0 0 0 5.07 11H3v2h2.07A7 7 0 0 0 11 18.93V21h2v-2.07A7 7 0 0 0 18.93 13H21v-2zm-9 6a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg>
       Use my location
     </button>
+    <p class="label">Saved places</p>
+    <ul class="saved" id="saved"></ul>
     <form id="searchForm">
       <input id="searchInput" type="search" placeholder="Search a city or ZIP" autocomplete="off" enterkeyhint="search" aria-label="Search a city">
       <button class="pill-btn" type="submit">Search</button>
@@ -560,25 +576,30 @@ function renderToday() {
 }
 /* ---------- Weather Bear ---------- */
 // What the bear wears and says, from the current conditions and the next 12 hours.
+// The bear opens with a pun (one per day, so it doesn't change on every refresh); the tip stays plain.
 function bearMood(f) {
   const c = f.current, d = f.daily, h = f.hourly, k = kind(c.weather_code), feels = c.apparent_temperature, day = c.is_day === 1;
-  const uv = d.uv_index_max ? d.uv_index_max[0] : 0;
+  const uv = d.uv_index_max ? d.uv_index_max[0] : 0, hi = Math.round(d.temperature_2m_max[0]);
+  const today = Math.floor(mins(c.time.slice(0, 10)) / 1440), pick = (...lines) => lines[today % lines.length];
   let rainAt = -1;
   for (let i = 1; i < Math.min(12, h.time.length); i++) if ((h.precipitation_probability?.[i] ?? 0) >= 50 && kind(h.weather_code[i]) !== "snow") { rainAt = i; break; }
-  if (k === "storm") return { wear: "umbrella", say: "Storms around.", tip: "If you hear thunder, head inside." };
-  if (k === "snow") return { wear: "beanie", say: "Snow out there.", tip: "Bundle up and take it slow on the roads." };
-  if (k === "rain" || k === "drizzle") return { wear: "umbrella", say: k === "rain" ? "It's raining." : "A little drizzle.", tip: "Grab an umbrella on the way out." };
-  if (rainAt > 0) return { wear: "umbrella", say: `Rain likely around ${fmtHour(h.time[rainAt])}.`, tip: "Worth bringing an umbrella." };
-  if (feels <= 32) return { wear: "beanie", say: "Bitter cold today.", tip: "Hat, gloves and a warm coat." };
-  if (feels < 50) return { wear: "scarf", say: "Chilly out.", tip: "You'll want a jacket." };
-  if (feels >= 95) return { wear: "shades", say: "Dangerously hot.", tip: "Drink water and find some shade." };
-  if (!day) return { wear: "sleepy", say: k === "clear" ? "Clear night." : "Quiet night.", tip: k === "clear" ? "Good one for stargazing." : "Nothing to worry about overnight." };
-  if (feels >= 85) return { wear: "shades", say: "A hot one.", tip: "Stay hydrated out there." };
-  if (uv >= 8 && (k === "clear" || k === "partly")) return { wear: "shades", say: "Strong sun today.", tip: "Sunscreen if you're out for long." };
-  if ((c.wind_gusts_10m ?? 0) >= 35) return { wear: "", say: "Windy today.", tip: `Gusts up to ${Math.round(c.wind_gusts_10m)} mph.` };
-  if (k === "fog") return { wear: "", say: "Foggy out.", tip: "Give yourself extra time if you're driving." };
-  if (feels >= 60 && (k === "clear" || k === "partly")) return { wear: "shades", say: "Nice day out.", tip: "Good weather to get outside." };
-  return { wear: "", say: "Nothing to worry about.", tip: "No rain expected in the next 12 hours." };
+  if (k === "storm") return { wear: "umbrella", say: pick("Panda-monium out there.", "Thunder's growling louder than I do.", "It's getting grizzly out there."), tip: "If you hear thunder, head inside." };
+  if (k === "snow") return { wear: "beanie", say: pick("Snow day! Polar bear rules apply.", "Snow way! It's actually snowing.", "Snowing. I'm thinking about hibernating."), tip: "Bundle up and take it slow on the roads." };
+  if (k === "rain") return { wear: "umbrella", say: pick("Raining cats and cubs.", "It's raining. Paws your outdoor plans.", "Soggy fur weather."), tip: "Grab an umbrella on the way out." };
+  if (k === "drizzle") return { wear: "umbrella", say: pick("A drizzle. Bear-ly raining.", "Just enough drizzle to frizz the fur."), tip: "Grab an umbrella on the way out." };
+  if (rainAt > 0) return { wear: "umbrella", say: pick(`Rain likely around ${fmtHour(h.time[rainAt])}. Bear that in mind.`, `Rain around ${fmtHour(h.time[rainAt])}. Don't get caught with wet fur.`), tip: "Worth bringing an umbrella." };
+  if (feels <= 32) return { wear: "beanie", say: pick("Cold enough to hibernate.", "Polar bear weather.", "Brrr. Even my fur wants a coat."), tip: "Hat, gloves and a warm coat." };
+  if (feels < 50) return { wear: "scarf", say: pick("Sweater weather, fur sure.", "A little nippy. Fur real.", "Chilly enough to want a bear hug."), tip: "You'll want a jacket." };
+  if (feels >= 95) return { wear: "shades", say: pick(`${hi}° today. It's going to be a bear.`, "Unbearably hot out there.", "Too hot to bear. And I'd know."), tip: "Drink water and find some shade." };
+  if (!day) return k === "clear"
+    ? { wear: "sleepy", say: pick("Ursa Major's out tonight.", "Clear skies. A beary good night."), tip: "Good one for stargazing." }
+    : { wear: "sleepy", say: pick("All quiet in the den.", "Quiet night. Time to hibernate."), tip: "Nothing to worry about overnight." };
+  if (feels >= 85) return { wear: "shades", say: pick("Too hot for a fur coat.", "A hot one. Grin and bear it."), tip: "Stay hydrated out there." };
+  if (uv >= 8 && (k === "clear" || k === "partly")) return { wear: "shades", say: pick("Sun's out, paws out.", "Strong sun. Even bears burn."), tip: "Sunscreen if you're out for long." };
+  if ((c.wind_gusts_10m ?? 0) >= 35) return { wear: "", say: pick("Fur-ociously windy.", "Windy enough to ruffle my fur."), tip: `Gusts up to ${Math.round(c.wind_gusts_10m)} mph.` };
+  if (k === "fog") return { wear: "", say: pick("Foggy. I can bear-ly see.", "Fog's thick as honey."), tip: "Give yourself extra time if you're driving." };
+  if (feels >= 60 && (k === "clear" || k === "partly")) return { wear: "shades", say: pick("It's a beary nice day.", "Pawsitively lovely out.", "Bear-foot weather."), tip: "Good weather to get outside." };
+  return { wear: "", say: pick("Pretty bear-able out there.", "No grizzly weather today."), tip: "No rain expected in the next 12 hours." };
 }
 // The bear itself: same face as the app icon, with an optional accessory.
 function bearSVG(wear) {
@@ -869,7 +890,54 @@ function setPlace(p) {
   $("todayTop").innerHTML = `<div class="card skeleton">Loading the forecast…</div>`; $("todayBottom").innerHTML = "";
   if (map) { map.setView([p.lat, p.lon], 7); placeMarker && placeMarker.setLatLng([p.lat, p.lon]); }
   if (mini) { mini.setView([p.lat, p.lon], 6); miniMarker.setLatLng([p.lat, p.lon]); }
+  $("searchInput").value = ""; $("results").innerHTML = "";
   refresh(true);
+}
+
+/* ---------- saved places ---------- */
+// Every city picked from search is saved, so switching back is one tap from the place button.
+let saved = store.get("kw.saved") || [];
+if (!saved.length && place.mode === "city") { saved = [{ name: place.name, lat: place.lat, lon: place.lon }]; store.set("kw.saved", saved); }
+let savedTemps = {}, savedAt = 0;
+const spot = (p) => p.lat.toFixed(2) + "," + p.lon.toFixed(2);
+const near = (a, b) => miles(a.lat, a.lon, b.lat, b.lon) < 2;
+function savePlace(p) {
+  if (saved.some((s) => near(s, p))) return;
+  saved.push({ name: p.name, lat: p.lat, lon: p.lon }); store.set("kw.saved", saved);
+}
+function removePlace(i) { saved.splice(i, 1); store.set("kw.saved", saved); renderSaved(); }
+function renderSaved() {
+  const ul = $("saved");
+  if (!saved.length) { ul.innerHTML = `<li class="hint">Cities you search for are saved here.</li>`; return; }
+  ul.innerHTML = "";
+  saved.forEach((p, i) => {
+    const li = document.createElement("li"), w = savedTemps[spot(p)];
+    if (place.mode === "city" && near(p, place)) li.className = "on";
+    const go = document.createElement("button"); go.type = "button"; go.className = "go";
+    go.innerHTML = `${w ? icon(w.code, w.day) : ""}<span class="n">${esc(p.name)}</span>${w ? `<span class="t num" style="color:var(${tcol(w.temp)})">${w.temp}°</span>` : ""}`;
+    go.onclick = () => setPlace({ name: p.name, lat: p.lat, lon: p.lon, mode: "city" });
+    const rm = document.createElement("button"); rm.type = "button"; rm.className = "rm"; rm.setAttribute("aria-label", `Remove ${p.name}`);
+    rm.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+    rm.onclick = () => removePlace(i);
+    li.append(go, rm); ul.appendChild(li);
+  });
+}
+// One Open-Meteo call covers every saved place (comma-separated coordinates come back as a list).
+async function loadSavedTemps() {
+  const ask = saved.slice();
+  if (!ask.length || (Date.now() - savedAt < 10 * 60000 && ask.every((p) => savedTemps[spot(p)]))) return;
+  const q = new URLSearchParams({
+    latitude: ask.map((p) => p.lat.toFixed(4)).join(","), longitude: ask.map((p) => p.lon.toFixed(4)).join(","),
+    current: "temperature_2m,weather_code,is_day", temperature_unit: "fahrenheit", timezone: "auto"
+  });
+  try {
+    const j = await getJSON("https://api.open-meteo.com/v1/forecast?" + q);
+    (Array.isArray(j) ? j : [j]).forEach((r, i) => {
+      if (ask[i] && r.current) savedTemps[spot(ask[i])] = { temp: Math.round(r.current.temperature_2m), code: r.current.weather_code, day: r.current.is_day === 1 };
+    });
+    savedAt = Date.now();
+    if (!$("sheet").hidden) renderSaved();
+  } catch (e) { /* the list still works without temps */ }
 }
 // Turn coordinates into "Town, ST" with the Weather Service's points lookup (US only, no key).
 async function nameGPS(p) {
@@ -897,7 +965,12 @@ function useGPS(silent) {
     { timeout: 10000, maximumAge: 15 * 60000 }
   );
 }
-$("placeBtn").addEventListener("click", () => { if (DEMO) return; const s = $("sheet"); s.hidden = !s.hidden; $("placeBtn").setAttribute("aria-expanded", String(!s.hidden)); if (!s.hidden) $("searchInput").focus(); });
+$("placeBtn").addEventListener("click", () => {
+  if (DEMO) return; const s = $("sheet"); s.hidden = !s.hidden; $("placeBtn").setAttribute("aria-expanded", String(!s.hidden));
+  if (s.hidden) return;
+  renderSaved(); loadSavedTemps();
+  if (!saved.length) $("searchInput").focus(); // with saved places, don't pop the keyboard over the list
+});
 $("gpsBtn").addEventListener("click", () => useGPS(false));
 $("searchForm").addEventListener("submit", async (e) => {
   e.preventDefault(); const q = $("searchInput").value.trim(); if (!q) return; const ul = $("results");
@@ -911,7 +984,7 @@ $("searchForm").addEventListener("submit", async (e) => {
       const region = p.country_code === "US" ? (p.admin1 || "") : [p.admin1, p.country].filter(Boolean).join(", ");
       b.innerHTML = `${esc(p.name)} <small>${esc(region)}</small>`;
       const short = p.country_code === "US" && p.admin1 ? `${p.name}, ${STATE[p.admin1] || p.admin1}` : `${p.name}${p.country ? ", " + p.country : ""}`;
-      b.onclick = () => setPlace({ name: short, lat: p.latitude, lon: p.longitude, mode: "city" });
+      b.onclick = () => { const pl = { name: short, lat: p.latitude, lon: p.longitude, mode: "city" }; savePlace(pl); setPlace(pl); };
       li.appendChild(b); ul.appendChild(li);
     });
   } catch (err) { ul.innerHTML = `<li class="skeleton" style="padding:8px 2px">Search isn't working right now. Try again in a moment.</li>`; }
