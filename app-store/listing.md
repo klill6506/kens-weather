@@ -43,9 +43,9 @@ Forecast data by Open-Meteo. Alerts by the National Weather Service. Radar by Ra
 **Keywords** (100, comma separated, no spaces needed):
 weather,radar,forecast,hurricane,storm,alerts,NWS,rain,tropical,ad-free,hourly,temperature
 
-**Support URL**: https://klill6506.github.io/kens-weather/support.html
-**Privacy Policy URL**: https://klill6506.github.io/kens-weather/privacy.html
-**Marketing URL** (optional): https://klill6506.github.io/kens-weather/
+**Support URL**: https://weather-bear.kenlill.com/support.html
+**Privacy Policy URL**: https://weather-bear.kenlill.com/privacy.html
+**Marketing URL** (optional): https://weather-bear.kenlill.com/
 
 **Copyright**: 2026 Ken Lill
 
