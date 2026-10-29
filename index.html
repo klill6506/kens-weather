@@ -591,8 +591,9 @@ function bearSVG(wear) {
     : `<g class="blink"><circle cx="47" cy="56" r="4.6" fill="${dark}"/><circle cx="73" cy="56" r="4.6" fill="${dark}"/><circle cx="48.6" cy="54.4" r="1.5" fill="#fff"/><circle cx="74.6" cy="54.4" r="1.5" fill="#fff"/></g>`;
   let back = "", front = "";
   if (wear === "umbrella") {
-    back = `<path d="M60 4c-30 0-46 18-48 30 5-4 11-4 16 0 5-4 11-4 16 0 5-4 11-4 16 0 5-4 11-4 16 0 5-4 11-4 16 0 5-4 11-4 16 0C106 22 90 4 60 4z" fill="#2b7fd8"/><path d="M60 4c-10 6-15 18-16 30M60 4c10 6 15 18 16 30" fill="none" stroke="#1d5fa8" stroke-width="2"/><g fill="#4a9ff0" opacity=".9"><path d="M30 46l-2 5M96 44l-2 5M20 58l-2 5M102 60l-2 5" stroke="#4a9ff0" stroke-width="2.4" stroke-linecap="round"/></g>`;
-    front = `<path d="M60 34v62" stroke="#3b2a1e" stroke-width="2.6"/><path d="M60 96q0 7 6 7" fill="none" stroke="#3b2a1e" stroke-width="2.6" stroke-linecap="round"/><circle cx="60" cy="98" r="7" fill="${fur}"/>`;
+    // Tilted umbrella held behind the head; only the paw sits in front.
+    back = `<g transform="translate(103 99) rotate(-22)"><path d="M0 0V-66" stroke="#3b2a1e" stroke-width="2.6"/><path d="M-46-64C-44-98 44-98 46-64q-7.7-6-15.3 0q-7.7-6-15.3 0q-7.7-6-15.4 0q-7.7-6-15.3 0q-7.7-6-15.4 0q-7.7-6-15.3 0z" fill="#2b7fd8"/><path d="M0-90c-8 6-13 16-15.4 26M0-90c8 6 13 16 15.4 26" fill="none" stroke="#1d5fa8" stroke-width="2"/><path d="M0 0q0 6 6 6" fill="none" stroke="#3b2a1e" stroke-width="2.6" stroke-linecap="round"/></g><path d="M16 50l-2 5M22 64l-2 5M108 22l-2 5" stroke="#4a9ff0" stroke-width="2.4" stroke-linecap="round"/>`;
+    front = `<circle cx="103" cy="97" r="7.5" fill="${fur}"/>`;
   } else if (wear === "beanie") {
     front = `<path d="M26 44c0-26 68-26 68 0z" fill="#d9483b"/><rect x="24" y="40" width="72" height="10" rx="5" fill="#f2efe9"/><circle cx="60" cy="16" r="7" fill="#f2efe9"/><path d="M38 33v-6M50 30v-8M60 29v-8M70 30v-8M82 33v-6" stroke="#b83a2f" stroke-width="2.4" stroke-linecap="round"/>`;
   } else if (wear === "scarf") {
@@ -657,10 +658,45 @@ function loadLeaflet() {
 }
 function isDark() { const t = document.documentElement.getAttribute("data-theme"); return t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; }
 function frameLabel(ts) { return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: forecast && forecast.timezone || undefined }).format(new Date(ts * 1000)); }
+// RainViewer's free colors paint very weak returns (ground clutter, bugs, virga) as a tan haze that looks
+// like rain on a dry day. Drop those low-saturation tan/gray pixels and keep the real precipitation colors.
+let RadarTiles = null;
+function radarTiles(url, opts) {
+  RadarTiles = RadarTiles || L.TileLayer.extend({
+    createTile(coords, done) {
+      const c = document.createElement("canvas"); c.width = c.height = 256;
+      const img = new Image(); img.crossOrigin = "anonymous";
+      img.onload = () => {
+        const g = c.getContext("2d", { willReadFrequently: true }); g.drawImage(img, 0, 0);
+        try {
+          const d = g.getImageData(0, 0, 256, 256), a = d.data;
+          let n = 0;
+          for (let i = 0; i < a.length; i += 4) { const r = a[i], gr = a[i + 1], b = a[i + 2]; if (!a[i + 3]) continue; if (r >= b && Math.max(r, gr, b) - Math.min(r, gr, b) < 90) a[i + 3] = 0; else n++; }
+          g.putImageData(d, 0, 0); c.rain = n;
+        } catch (e) { /* tiles without CORS stay as drawn */ }
+        done(null, c);
+      };
+      img.onerror = (e) => done(e, c);
+      img.src = this.getTileUrl(coords);
+      return c;
+    }
+  });
+  return new RadarTiles(url, opts);
+}
+// Rain pixels in the tiles on screen, or -1 when the tiles couldn't be read.
+function rainInView(lyr, m) {
+  let n = 0;
+  for (const t of Object.values(lyr._tiles || {})) {
+    const p = t.el.getBoundingClientRect(), v = m.getContainer().getBoundingClientRect();
+    if (p.right < v.left || p.left > v.right || p.bottom < v.top || p.top > v.bottom) continue;
+    if (t.el.rain == null) return -1; n += t.el.rain;
+  }
+  return n;
+}
 function radarLayer(i) {
   const f = radarFrames[i]; if (radarLayers[f.path]) return radarLayers[f.path];
   // Universal Blue (2) is the free color scheme; 1_1 = smoothed, snow shown. Free tiles stop at zoom 7.
-  const lyr = L.tileLayer(`${radarHost}${f.path}/256/{z}/{x}/{y}/2/1_1.png`, { opacity: 0, maxNativeZoom: 7, maxZoom: 10, zIndex: 5, attribution: '<a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>' });
+  const lyr = radarTiles(`${radarHost}${f.path}/256/{z}/{x}/{y}/2/1_1.png`, { opacity: 0, maxNativeZoom: 7, maxZoom: 10, zIndex: 5, attribution: '<a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>' });
   radarLayers[f.path] = lyr; lyr.addTo(map); return lyr;
 }
 function showFrame(i) {
@@ -668,6 +704,7 @@ function showFrame(i) {
   frameIdx = i; radarLayer(i).setOpacity(0.75);
   const last = i === radarFrames.length - 1;
   $("frameTime").innerHTML = `${last ? "<b>Latest</b> · " : ""}${frameLabel(radarFrames[i].time)}`;
+  if (last) frameReady(radarLayer(i)).then(() => { if (frameIdx === i && !playing && rainInView(radarLayer(i), map) === 0) $("frameTime").innerHTML += " · No rain in view"; });
 }
 async function initRadar() {
   if (DEMO) {
@@ -726,10 +763,11 @@ async function updateMiniRadar() {
     const ri = await radarIndex(), f = ri.frames[ri.frames.length - 1];
     if (f.path !== miniPath) {
       const old = miniLayer;
-      miniLayer = L.tileLayer(`${ri.host}${f.path}/256/{z}/{x}/{y}/2/1_1.png`, { opacity: 0.8, maxNativeZoom: 7, maxZoom: 10, zIndex: 5, attribution: '<a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>' }).addTo(mini);
+      miniLayer = radarTiles(`${ri.host}${f.path}/256/{z}/{x}/{y}/2/1_1.png`, { opacity: 0.8, maxNativeZoom: 7, maxZoom: 10, zIndex: 5, attribution: '<a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>' }).addTo(mini);
       miniPath = f.path; if (old) setTimeout(() => mini.removeLayer(old), 1500);
     }
     $("miniTime").innerHTML = `<b>Latest</b> · ${frameLabel(f.time)}`;
+    const ml = miniLayer; frameReady(ml).then(() => { if (ml === miniLayer && rainInView(ml, mini) === 0) $("miniTime").innerHTML += " · No rain nearby"; });
   } catch (e) { $("miniTime").textContent = "Radar unavailable right now"; }
 }
 async function togglePlay() {
