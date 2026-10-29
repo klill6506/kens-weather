@@ -23,7 +23,7 @@ await light.screenshot({ path: "out/today-light-full.png", fullPage: true });
 console.log("bear says:", await light.textContent(".bear-say").catch(() => "(no bear)"));
 console.log("miniTime:", await light.textContent("#miniTime"));
 await light.click("#tab-radar"); await light.waitForTimeout(5000);
-console.log("frameTime:", await light.textContent("#frameTime"));
+console.log("frameTime:", await light.textContent("#frameTime"), "rainInView:", await light.evaluate(() => rainInView(radarLayer(radarFrames.length - 1), map)), "miniTime now:", await light.textContent("#miniTime"), "mini rain:", await light.evaluate(() => rainInView(miniLayer, mini)));
 await light.screenshot({ path: "out/radar.png" });
 const vis = await light.evaluate(() => [...document.querySelectorAll("#map img.leaflet-tile")].filter((i) => i.src.includes("rainviewer") && getComputedStyle(i.closest(".leaflet-layer")).opacity !== "0").map((i) => i.src));
 console.log("visible radar tiles", vis.length, "rain pixels", JSON.stringify(await light.evaluate(rainPixels, vis)));
