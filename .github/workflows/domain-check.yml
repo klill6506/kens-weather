@@ -3,9 +3,8 @@ on:
   push:
     branches: [domain-check]
 jobs:
-  check:
+  diag:
     runs-on: ubuntu-latest
-    timeout-minutes: 330
     steps:
       - name: Why HTTPS fails
         run: |
@@ -14,6 +13,10 @@ jobs:
           echo "--- CNAME"; dig +short weather-bear.kenlill.com
           echo "--- AAAA"; dig +short AAAA weather-bear.kenlill.com
           echo "--- TLS"; curl -sv -o /dev/null -m 20 https://weather-bear.kenlill.com/ 2>&1 | grep -i "subject\|issuer\|SSL\|error\|alert" | head -12
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
       - name: Check the pages over http
         run: |
           for i in $(seq 1 20); do
