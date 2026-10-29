@@ -531,7 +531,9 @@ function renderToday() {
   d.sunset.forEach((s) => { const m = mins(s); if (m > nowM && m < tN) events.push({ m, s, kind: "Sunset" }); });
   h.time.forEach((t, i) => {
     const m = mins(t), pp = h.precipitation_probability ? h.precipitation_probability[i] : null;
-    items.push(`<div class="hour${i === 0 ? " now" : ""}"><span class="h">${i === 0 ? "Now" : fmtHour(t)}</span>${icon(h.weather_code[i], h.is_day[i] === 1)}<span class="tt num" style="color:var(${tcol(h.temperature_2m[i])})">${Math.round(h.temperature_2m[i])}°</span><span class="pp num">${pp != null && pp >= 10 ? pp + "%" : ""}</span></div>`);
+    // "Now" shows current conditions; the hourly slot describes the top of the hour (sun at 6:00, though it set at 6:40).
+    const code = i === 0 ? c.weather_code : h.weather_code[i], isDay = i === 0 ? c.is_day === 1 : h.is_day[i] === 1, temp = i === 0 ? c.temperature_2m : h.temperature_2m[i];
+    items.push(`<div class="hour${i === 0 ? " now" : ""}"><span class="h">${i === 0 ? "Now" : fmtHour(t)}</span>${icon(code, isDay)}<span class="tt num" style="color:var(${tcol(temp)})">${Math.round(temp)}°</span><span class="pp num">${pp != null && pp >= 10 ? pp + "%" : ""}</span></div>`);
     events.filter((e) => e.m > m && e.m < m + 60).forEach((e) => items.push(`<div class="hour sunev"><span class="h">${e.kind}</span><svg viewBox="0 0 24 24" aria-hidden="true">${sunG(12, 15, 4.2)}<rect x="0" y="16" width="24" height="8" fill="var(--sun-soft)"/><line x1="3" y1="16" x2="21" y2="16" stroke="var(--sun)" stroke-width="1.6" stroke-linecap="round"/></svg><span class="tt num">${fmtTime(e.s).replace(" ", " ")}</span><span class="pp"></span></div>`));
   });
 
