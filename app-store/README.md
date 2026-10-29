@@ -13,16 +13,18 @@
 1. **Join the Apple Developer Program as an individual** ($99/year): developer.apple.com/programs/enroll,
    or the Apple Developer app on iPhone. Needs an Apple Account with two-factor authentication
    and your legal name. The App Store will show "Ken Lill" as the seller.
-2. **Merge this branch to `main`** so the privacy and support pages go live on GitHub Pages.
-3. **Create the app in App Store Connect**: My Apps › + › New App. Platform iOS, name
-   Weather Bear, language English (U.S.), bundle ID `com.kenlill.weatherbear`
-   (register it under Certificates, IDs & Profiles › Identifiers if it isn't in the list), SKU `weatherbear`.
-4. **Make an API key**: App Store Connect › Users and Access › Integrations › App Store Connect API ›
-   Team Keys › generate, role **Admin**. Download the .p8 file (one chance only).
-5. **Add four GitHub secrets** (repo Settings › Secrets and variables › Actions):
-   `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_API_KEY_P8` (paste the whole .p8 text). The Team ID is already in the project.
-6. **Run the upload**: Actions › iOS › Run workflow › upload ✔. The build shows up in TestFlight;
-   install the TestFlight app on your iPhone and try it.
+2. **Make an API key**: App Store Connect › Users and Access › Integrations › App Store Connect API ›
+   Team Keys › generate, role **Admin** (the first time, press Request Access and accept the terms).
+   Download the .p8 file (one chance only). Note the Key ID and the Issuer ID shown above the list.
+3. **Add three GitHub secrets** (repo Settings › Secrets and variables › Actions › New repository secret):
+   `ASC_KEY_ID`, `ASC_ISSUER_ID`, `ASC_API_KEY_P8` (open the .p8 in Notepad and paste all of it,
+   BEGIN and END lines included). The Team ID is already in the project.
+4. **Register the bundle IDs**: Actions › iOS › Run workflow › register_ids ✔ (leave upload off).
+   This also proves the three secrets work.
+5. **Create the app in App Store Connect**: Apps › + › New App. Platform iOS, name
+   Weather Bear: Radar & Forecast, language English (U.S.), bundle ID `com.kenlill.weatherbear`, SKU `weatherbear`.
+6. **Run the upload**: Actions › iOS › Run workflow › upload ✔. The build shows up in TestFlight
+   after Apple processes it; install the TestFlight app on your iPhone and try it.
 7. **Fill in the listing** from `listing.md`, add screenshots, answer App Privacy, and press
    Submit for Review.
 
