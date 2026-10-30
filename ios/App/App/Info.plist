@@ -26,6 +26,8 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Weather Bear uses your location to show the weather, radar and alerts where you are. It never tracks you in the background.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Weather Bear uses your location to show the weather, radar and alerts where you are.</string>
 	<key>UIApplicationSceneManifest</key>
