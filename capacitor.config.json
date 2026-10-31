@@ -4,6 +4,7 @@
   "webDir": "www",
   "ios": {
     "contentInset": "never",
-    "backgroundColor": "#eef2f6"
+    "backgroundColor": "#eef2f6",
+    "appendUserAgent": "WeatherBear/1.0 (+https://weather-bear.kenlill.com/support.html)"
   }
 }

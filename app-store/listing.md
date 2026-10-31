@@ -39,7 +39,7 @@ Use your location or search for any city.
 PRIVATE BY DESIGN
 Weather Bear has no ads, no analytics and no server of its own. Your location is used only to fetch the weather and never leaves your device except in those weather requests.
 
-Forecast data by Open-Meteo. Alerts by the National Weather Service. Radar by RainViewer. Maps by OpenStreetMap contributors.
+Forecast data by Open-Meteo. Alerts and radar by the National Weather Service (NOAA). Maps by OpenStreetMap contributors.
 
 **Keywords** (100, comma separated, no spaces needed):
 weather,radar,forecast,hurricane,storm,alerts,NWS,rain,tropical,ad-free,hourly,temperature

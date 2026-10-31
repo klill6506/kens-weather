@@ -259,7 +259,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .frame-time { font-size: 0.9rem; color: var(--muted); }
 .frame-time b { color: var(--ink); }
 .legend { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: var(--muted); }
-.legend i { flex: 1; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #9be2ff, #1ca3e8, #1c55d8, #f3d23c, #f0882a, #d8282a, #c44fb8); }
+.legend i { flex: 1; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #4a6aa5, #5ab9c1, #22d63f, #b5ba03, #ffd800, #ff8e00, #ff0000); } /* NOAA MRMS colors, light to heavy */
 .radar-controls { display: flex; flex-direction: column; gap: 10px; }
 /* Small radar on Today */
 .mini-radar { padding: 0; overflow: hidden; }
@@ -389,7 +389,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 
   <section class="panel" id="p-tropics" role="tabpanel" aria-labelledby="tab-tropics" hidden></section>
 
-  <p class="foot">Forecast from <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · Alerts from the National Weather Service · Radar from RainViewer · Storms from the National Hurricane Center</p>
+  <p class="foot">Forecast from <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> · Alerts from the National Weather Service · Radar from NOAA ·Storms from the National Hurricane Center</p>
 </div>
 
 <script>
@@ -448,11 +448,13 @@ function greet(localNow) {
 }
 
 /* ---------- data ---------- */
-async function getJSON(url, opts = {}) {
+async function getBody(url, opts, read) {
   const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), opts.timeout || 12000);
-  try { const r = await fetch(url, { signal: ctl.signal, headers: opts.headers }); if (!r.ok) { const e = new Error("HTTP " + r.status); e.status = r.status; throw e; } return await r.json(); }
+  try { const r = await fetch(url, { signal: ctl.signal, headers: opts.headers }); if (!r.ok) { const e = new Error("HTTP " + r.status); e.status = r.status; throw e; } return await read(r); }
   finally { clearTimeout(t); }
 }
+function getJSON(url, opts = {}) { return getBody(url, opts, (r) => r.json()); }
+function getText(url, opts = {}) { return getBody(url, opts, (r) => r.text()); }
 function forecastURL(p) {
   const q = new URLSearchParams({
     latitude: p.lat.toFixed(4), longitude: p.lon.toFixed(4),
@@ -671,7 +673,7 @@ function renderAlerts() {
 }
 
 /* ---------- Radar ---------- */
-let map = null, radarFrames = [], radarHost = "", radarLayers = {}, frameIdx = 0, playing = null, placeMarker = null, stormLayer = null;
+let map = null, radarFrames = [], radarLayers = {}, frameIdx = 0, playing = null, placeMarker = null, stormLayer = null;
 function loadLeaflet() {
   if (window.L) return Promise.resolve();
   return new Promise((res, rej) => {
@@ -681,21 +683,32 @@ function loadLeaflet() {
 }
 function isDark() { const t = document.documentElement.getAttribute("data-theme"); return t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; }
 function frameLabel(ts) { return new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: forecast && forecast.timezone || undefined }).format(new Date(ts * 1000)); }
-// RainViewer's free colors paint very weak returns (ground clutter, bugs, virga) as a tan haze that looks
-// like rain on a dry day. Drop those low-saturation tan/gray pixels and keep the real precipitation colors.
+// Radar: NOAA/NWS MRMS quality-controlled base reflectivity, served as WMS by NCEP. Public domain
+// ("may be used without charge for any lawful purpose", weather.gov/disclaimer). One layer per US
+// region, picked by the place; first match wins, so Key West stays on the mainland layer.
+const RADAR_WMS = "https://opengeo.ncep.noaa.gov/geoserver";
+const RADAR_REGIONS = [
+  { layer: "conus/conus_bref_qcd", w: -130, e: -60, s: 20, n: 55 },
+  { layer: "alaska/alaska_bref_qcd", w: -176, e: -126, s: 50, n: 72 },
+  { layer: "hawaii/hawaii_bref_qcd", w: -164, e: -151, s: 15, n: 26 },
+  { layer: "carib/carib_bref_qcd", w: -90, e: -60, s: 10, n: 25 },
+  { layer: "guam/guam_bref_qcd", w: 140, e: 150, s: 9, n: 18 },
+];
+const RADAR_CREDIT = 'Radar: <a href="https://www.weather.gov/" target="_blank" rel="noopener">NOAA/NWS</a>';
+function radarRegion(p) { return RADAR_REGIONS.find((r) => p.lon >= r.w && p.lon <= r.e && p.lat >= r.s && p.lat <= r.n) || RADAR_REGIONS[0]; }
+// Tiles are drawn on a canvas so the app can count rain pixels for "No rain in view".
 let RadarTiles = null;
-function radarTiles(url, opts) {
-  RadarTiles = RadarTiles || L.TileLayer.extend({
+function radarTiles(f, opts) {
+  RadarTiles = RadarTiles || L.TileLayer.WMS.extend({
     createTile(coords, done) {
       const c = document.createElement("canvas"); c.width = c.height = 256;
       const img = new Image(); img.crossOrigin = "anonymous";
       img.onload = () => {
         const g = c.getContext("2d", { willReadFrequently: true }); g.drawImage(img, 0, 0);
         try {
-          const d = g.getImageData(0, 0, 256, 256), a = d.data;
-          let n = 0;
-          for (let i = 0; i < a.length; i += 4) { const r = a[i], gr = a[i + 1], b = a[i + 2]; if (!a[i + 3]) continue; if (r >= b && Math.max(r, gr, b) - Math.min(r, gr, b) < 90) a[i + 3] = 0; else n++; }
-          g.putImageData(d, 0, 0); c.rain = n;
+          const a = g.getImageData(0, 0, 256, 256).data;
+          let n = 0; for (let i = 3; i < a.length; i += 4) if (a[i]) n++;
+          c.rain = n;
         } catch (e) { /* tiles without CORS stay as drawn */ }
         done(null, c);
       };
@@ -704,7 +717,7 @@ function radarTiles(url, opts) {
       return c;
     }
   });
-  return new RadarTiles(url, opts);
+  return new RadarTiles(`${RADAR_WMS}/${f.layer}/ows`, { layers: f.layer.split("/")[1], styles: "", format: "image/png", transparent: true, version: "1.3.0", time: f.iso, maxZoom: 10, zIndex: 5, attribution: RADAR_CREDIT, ...opts });
 }
 // Rain pixels in the tiles on screen, or -1 when the tiles couldn't be read.
 function rainInView(lyr, m) {
@@ -718,8 +731,7 @@ function rainInView(lyr, m) {
 }
 function radarLayer(i) {
   const f = radarFrames[i]; if (radarLayers[f.path]) return radarLayers[f.path];
-  // Universal Blue (2) is the free color scheme; 1_1 = smoothed, snow shown. Free tiles stop at zoom 7.
-  const lyr = radarTiles(`${radarHost}${f.path}/256/{z}/{x}/{y}/2/1_1.png`, { opacity: 0, maxNativeZoom: 7, maxZoom: 10, zIndex: 5, attribution: '<a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>' });
+  const lyr = radarTiles(f, { opacity: 0 });
   radarLayers[f.path] = lyr; lyr.addTo(map); return lyr;
 }
 function showFrame(i) {
@@ -753,7 +765,7 @@ async function syncRadar() {
   const ri = await radarIndex();
   const keep = new Set(ri.frames.map((f) => f.path));
   Object.keys(radarLayers).forEach((k) => { if (!keep.has(k)) { map.removeLayer(radarLayers[k]); delete radarLayers[k]; } });
-  radarHost = ri.host; radarFrames = ri.frames;
+  radarFrames = ri.frames;
   showFrame(radarFrames.length - 1);
 }
 // Wait until a frame's tiles are in, so the loop never flashes an empty map.
@@ -761,13 +773,22 @@ function frameReady(lyr) {
   if (!lyr.isLoading()) return Promise.resolve();
   return new Promise((res) => { const t = setTimeout(res, 6000); lyr.once("load", () => { clearTimeout(t); res(); }); });
 }
-// One RainViewer index shared by both maps, reused for 5 minutes.
+// One frame list for the place's radar region, shared by both maps, reused for 5 minutes.
+// NOAA posts a frame about every 2 minutes; keep the last hour at 10-minute steps (7 frames).
 let radarIdx = null, radarIdxAt = 0;
 async function radarIndex() {
-  if (radarIdx && Date.now() - radarIdxAt < 5 * 60000) return radarIdx;
-  const j = await getJSON("https://api.rainviewer.com/public/weather-maps.json");
-  const frames = (j.radar && j.radar.past) || []; if (!frames.length) throw new Error("no frames");
-  radarIdx = { host: j.host, frames }; radarIdxAt = Date.now(); return radarIdx;
+  const layer = radarRegion(place).layer;
+  if (radarIdx && radarIdx.layer === layer && Date.now() - radarIdxAt < 5 * 60000) return radarIdx;
+  const xml = await getText(`${RADAR_WMS}/${layer}/ows?service=WMS&version=1.3.0&request=GetCapabilities`);
+  const dim = new DOMParser().parseFromString(xml, "text/xml").querySelector('Dimension[name="time"]');
+  const times = (dim ? dim.textContent.split(",") : []).map((s) => Date.parse(s.trim())).filter((t) => !isNaN(t)).sort((a, b) => a - b);
+  if (!times.length) throw new Error("no frames");
+  const picks = [];
+  for (let k = 0, want = times[times.length - 1]; k < 7; k++, want -= 10 * 60000) {
+    const t = times.filter((x) => x <= want).pop(); if (t != null && !picks.includes(t)) picks.unshift(t);
+  }
+  const frames = picks.map((t) => ({ layer, iso: new Date(t).toISOString(), time: t / 1000, path: `${layer}@${t}` }));
+  radarIdx = { layer, frames }; radarIdxAt = Date.now(); return radarIdx;
 }
 // Small, still radar on Today; a tap opens the full Radar tab.
 let mini = null, miniLayer = null, miniPath = "", miniMarker = null;
@@ -786,7 +807,7 @@ async function updateMiniRadar() {
     const ri = await radarIndex(), f = ri.frames[ri.frames.length - 1];
     if (f.path !== miniPath) {
       const old = miniLayer;
-      miniLayer = radarTiles(`${ri.host}${f.path}/256/{z}/{x}/{y}/2/1_1.png`, { opacity: 0.8, maxNativeZoom: 7, maxZoom: 10, zIndex: 5, attribution: '<a href="https://www.rainviewer.com/" target="_blank" rel="noopener">RainViewer</a>' }).addTo(mini);
+      miniLayer = radarTiles(f, { opacity: 0.8 }).addTo(mini);
       miniPath = f.path; if (old) setTimeout(() => mini.removeLayer(old), 1500);
     }
     $("miniTime").innerHTML = `<b>Latest</b> · ${frameLabel(f.time)}`;
@@ -796,7 +817,7 @@ async function updateMiniRadar() {
 async function togglePlay() {
   if (playing) { clearInterval(playing); playing = null; $("playLabel").textContent = "Play last hour"; $("playIcon").innerHTML = '<path fill="currentColor" d="M7 4v16l13-8z"/>'; showFrame(radarFrames.length - 1); return; }
   if (!radarFrames.length) return;
-  // Last hour = 7 frames at 10-minute steps; stays well inside RainViewer's free request limit.
+  // Last hour = 7 frames at 10-minute steps (radarIndex picks them), so tile requests stay modest.
   const start = Math.max(0, radarFrames.length - 7); let i = start;
   const btn = $("playBtn"); btn.disabled = true; $("playLabel").textContent = "Loading…";
   await Promise.all(radarFrames.slice(start).map((f, k) => frameReady(radarLayer(start + k))));

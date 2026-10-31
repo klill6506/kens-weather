@@ -21,3 +21,22 @@
 - Two Claude sessions (Code tab + another surface committing as "Claude")
   have worked on this repo at the same time. Always `git fetch` and compare
   before writing or pushing.
+- 2026-10-31: Apple held build 15 under Guideline 2.1 (Information Needed,
+  new developer account): screen recording, purpose, setup, external
+  services, regions, and proof of data licenses. Terms checked that day:
+  - RainViewer API: "personal and educational use only" (also capped at
+    zoom 7, 100 req/IP/min since 2026-01-01) — NOT OK for an App Store app.
+  - NWS/NOAA: public domain, "may be used without charge for any lawful
+    purpose" (weather.gov/disclaimer); don't imply endorsement.
+  - Open-Meteo free tier: non-commercial, defined to include apps "that do
+    not have subscriptions or advertising"; CC BY 4.0 credit. Adding ads,
+    subscriptions or purchases would require a paid Open-Meteo plan.
+  - OSM tiles: app must send its own User-Agent ("Traffic that uses these
+    defaults will be blocked"), credit on the map, no offline/prefetch.
+  Fix (build 17): radar → NOAA/NCEP MRMS WMS (opengeo.ncep.noaa.gov, layers
+  conus/alaska/hawaii/carib/guam *_bref_qcd, ~2-min frames, CORS *), and
+  `ios.appendUserAgent` in capacitor.config.json. Reply text and Ken's steps:
+  app-store/review-reply.md.
+- Build numbers = GitHub Actions run number of ios.yml. Pushes to `main` do
+  NOT run it (push trigger is the `ios-app-store` branch); uploads are a
+  manual workflow_dispatch with upload=true.
