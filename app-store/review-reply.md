@@ -10,9 +10,11 @@ policies ask. It also carries the location purpose-string fix Apple flagged on b
 1. **Install build 17** from the TestFlight app once Apple finishes processing it
    (usually 15–30 minutes after the upload; TestFlight sends a notification).
 2. **Update the iPhone to the latest iOS**: Settings › General › Software Update.
-3. **Record the screen** (shot list below). Turn on recording: Settings › Control Center ›
-   add Screen Recording; then swipe down from the top-right corner and tap the record
-   button. Stop with the red pill at the top. The video lands in Photos. Aim for 1–2 minutes.
+3. **Record the screen** (shot list below). The Screen Recording button is a white dot
+   inside a ring in Control Center (swipe down from the top-right corner). If it isn't
+   there: in Control Center tap **+** at the top left, then **Add a Control**, search
+   "Screen Recording" and tap it. Tapping the button gives a 3-second countdown; stop with
+   the red pill at the top. The video lands in Photos. Aim for 1–2 minutes.
 4. **App Store Connect › Weather Bear › the 1.0 version page**:
    - **Build**: remove build 15 and pick **build 17**.
    - **Description**: change the last line to
