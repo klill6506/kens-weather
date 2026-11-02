@@ -46,6 +46,10 @@
   build-web.mjs adds "‹ Back to Weather Bear" (href index.html) to the app's
   copies only; build 19. Any new same-app page needs its own way back.
   (Off-site links are fine: Capacitor opens them in Safari.)
+- 2026-11-02: Build 19 resubmitted with a 1:45 iPhone screen recording. App
+  Review message attachments are capped at 30 MB; the 145 MB HEVC original
+  was cut to 12 MB with ffmpeg (720 wide, H.264 CRF 24, audio dropped)
+  without losing legibility. ffmpeg is installed via winget (Gyan.FFmpeg).
 - Build numbers = GitHub Actions run number of ios.yml. Pushes to `main` do
   NOT run it (push trigger is the `ios-app-store` branch); uploads are a
   manual workflow_dispatch with upload=true.

@@ -17,12 +17,10 @@
   credits, region pick for Anchorage/Honolulu/San Juan/Guam/Key West.
 
 ## Next
-- App Review (Guideline 2.1 info request on build 15): Ken installs build 19
-  from TestFlight, records the screen, swaps build 15 → 19, updates the
-  description line, pastes Notes, replies with the recording. All text and
-  steps in app-store/review-reply.md. (Builds 17 and 18 skipped, 2026-11-02:
-  17's Privacy link was faint blue on blue; 18's Privacy/Support pages had
-  no way back to the app. Both found by Ken on TestFlight, fixed in 19.)
+- App Review: build 19 resubmitted 2026-11-02 with the screen recording and
+  the reply in app-store/review-reply.md. Waiting on Apple. (Builds 17 and 18
+  skipped: 17's Privacy link was faint blue on blue; 18's Privacy/Support
+  pages had no way back to the app. Both found by Ken on TestFlight.)
 
 ## Blockers
 - None.
