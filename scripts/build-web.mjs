@@ -8,8 +8,13 @@ rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 
 cpSync("icons", `${out}/icons`, { recursive: true });
-cpSync("privacy.html", `${out}/privacy.html`);
-cpSync("support.html", `${out}/support.html`);
+// In the app these pages replace the weather screen and there is no browser Back button
+// (build 18 was a dead end), so give them one. The website copies stay as they are.
+for (const page of ["privacy.html", "support.html"]) {
+  const src = readFileSync(page, "utf8");
+  if (!src.includes("<main>")) throw new Error(`${page} no longer contains <main>`);
+  writeFileSync(`${out}/${page}`, src.replace("<main>", `<main>\n<a href="index.html" style="display:inline-block;padding:10px 0;margin-bottom:6px;font-size:17px;font-weight:600;text-decoration:none">‹ Back to Weather Bear</a>`));
+}
 cpSync("node_modules/@capacitor/core/dist/capacitor.js", `${out}/capacitor.js`);
 cpSync("scripts/native-shim.js", `${out}/native-shim.js`);
 
