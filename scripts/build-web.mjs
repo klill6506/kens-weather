@@ -26,9 +26,11 @@ html = html.replaceAll("Settings › Safari › Location", "Settings › Weather
 // The website greets Ken by name; the App Store app is for everyone.
 html = html.replace(/Good (morning|afternoon|evening), Ken/g, "Good $1");
 
-// Guideline 5.1.1 wants the privacy policy reachable inside the app.
-must("</body>");
-html = html.replace("</body>", `<p style="text-align:center;font-size:13px;margin:24px 0 calc(24px + env(safe-area-inset-bottom))"><a href="privacy.html">Privacy</a> · <a href="support.html">Support</a></p>\n</body>`);
+// Guideline 5.1.1 wants the privacy policy reachable inside the app. It sits under the data
+// credits in their white footer style; plain links were near-invisible on the sky (build 17).
+const credits = "Storms from the National Hurricane Center</p>";
+must(credits);
+html = html.replace(credits, `${credits}\n  <p class="foot" style="font-size:.95rem;font-weight:700;margin-bottom:env(safe-area-inset-bottom)"><a href="privacy.html" style="display:inline-block;padding:8px 10px">Privacy</a> · <a href="support.html" style="display:inline-block;padding:8px 10px">Support</a></p>`);
 
 writeFileSync(`${out}/index.html`, html);
 console.log("www/ built");
