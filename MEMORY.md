@@ -41,6 +41,11 @@
   blue link on the blue sky, below everything). build-web.mjs now injects it
   under the data credits in the white `.foot` style; build 18. Anything the
   app adds must be checked against the sky background, not a white page.
+- 2026-11-02: On build 18 the Privacy/Support pages were a dead end: in the
+  app they replace the weather screen and WKWebView has no Back button.
+  build-web.mjs adds "‹ Back to Weather Bear" (href index.html) to the app's
+  copies only; build 19. Any new same-app page needs its own way back.
+  (Off-site links are fine: Capacitor opens them in Safari.)
 - Build numbers = GitHub Actions run number of ios.yml. Pushes to `main` do
   NOT run it (push trigger is the `ios-app-store` branch); uploads are a
   manual workflow_dispatch with upload=true.
