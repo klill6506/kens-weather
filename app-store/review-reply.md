@@ -1,13 +1,14 @@
 # Reply to App Review — Guideline 2.1 Information Needed (Weather Bear 1.0)
 
-Apple asked for six things about build 15. Build 17 replaces it: it switches radar to
+Apple asked for six things about build 15. Build 18 replaces it: it switches radar to
 NOAA's public-domain service (RainViewer's free API is "personal and educational use
 only") and makes the app identify itself to the map and weather services, as their
-policies ask. It also carries the location purpose-string fix Apple flagged on build 15.
+policies ask. It also carries the location purpose-string fix Apple flagged on build 15,
+and makes the in-app Privacy link easy to see (in build 17 it was faint blue on blue).
 
 ## Ken's steps, in order
 
-1. **Install build 17** from the TestFlight app once Apple finishes processing it
+1. **Install build 18** (not 17) from the TestFlight app once Apple finishes processing it
    (usually 15–30 minutes after the upload; TestFlight sends a notification).
 2. **Update the iPhone to the latest iOS**: Settings › General › Software Update.
 3. **Record the screen** (shot list below). The Screen Recording button is a white dot
@@ -16,7 +17,7 @@ policies ask. It also carries the location purpose-string fix Apple flagged on b
    "Screen Recording" and tap it. Tapping the button gives a 3-second countdown; stop with
    the red pill at the top. The video lands in Photos. Aim for 1–2 minutes.
 4. **App Store Connect › Weather Bear › the 1.0 version page**:
-   - **Build**: remove build 15 and pick **build 17**.
+   - **Build**: remove build 15 and pick **build 18**.
    - **Description**: change the last line to
      `Forecast data by Open-Meteo. Alerts and radar by the National Weather Service (NOAA). Maps by OpenStreetMap contributors.`
    - **App Review Information › Notes**: paste the "Notes field" text below.
@@ -36,7 +37,7 @@ policies ask. It also carries the location purpose-string fix Apple flagged on b
 7. Tap the **place name** at the top right, search a city (e.g. Miami), pick it, and show
    the weather change. Open the place list again, switch back to your city, and remove
    Miami with the ×.
-8. Scroll to the bottom of Today and tap **Privacy**, then go back.
+8. Scroll to the bottom of Today and tap **Privacy** (white, under the data credits), then go back.
 9. Go to the Home Screen, long-press an empty spot, tap **+**, add the Weather Bear widget.
 
 There is no sign-up, login, account, user-generated content or purchase to show; the reply
@@ -46,7 +47,7 @@ says so.
 
 ## Reply (paste into the App Review message, attach the recording)
 
-Hello, and thank you for reviewing Weather Bear. Here is the information you asked for. Please review build 17, which replaces build 15 (details in item 6).
+Hello, and thank you for reviewing Weather Bear. Here is the information you asked for. Please review build 18, which replaces build 15 (details in item 6).
 
 1. Screen recording
 Attached: a recording on an iPhone running the latest iOS. It starts at app launch and walks through every screen. Weather Bear has no sign-up, login or account (so there is nothing to delete), no user-generated content, and no purchases, subscriptions or ads.
@@ -74,7 +75,7 @@ Weather Bear is offered only on the United States App Store and works the same f
 - Open-Meteo (forecasts, city search): data licensed CC BY 4.0. Open-Meteo's free API is for non-commercial use, which its terms define to include apps "that do not have subscriptions or advertising" (https://open-meteo.com/en/terms). Weather Bear is free with no ads, subscriptions or purchases, and credits Open-Meteo in the app.
 - OpenStreetMap (base map): map data © OpenStreetMap contributors under the ODbL, credited on the map. Tiles are used under the OpenStreetMap Foundation Tile Usage Policy (https://operations.osmfoundation.org/policies/tiles/); the app identifies itself with its own User-Agent as that policy requires.
 - Leaflet (BSD 2-Clause license) and the Archivo and Atkinson Hyperlegible fonts (SIL Open Font License).
-Build 17 replaced our earlier radar source (RainViewer, whose free API is limited to personal and educational use) with NOAA's public-domain radar, so every data source is clearly licensed for this app.
+Build 18 replaced our earlier radar source (RainViewer, whose free API is limited to personal and educational use) with NOAA's public-domain radar, so every data source is clearly licensed for this app.
 
 Thank you,
 Ken Lill
@@ -83,4 +84,4 @@ Ken Lill
 
 ## Notes field (App Review Information › Notes)
 
-No account or login. Allow location, or tap the place name (top right) and search any city. Tabs: Today, Radar (tap "Play last hour"), Alerts, Tropics. Native features: iOS location services and Home Screen / Lock Screen widgets (WidgetKit). No ads, purchases, analytics or user content. Offered on the U.S. App Store only; radar and alerts cover the U.S. and its territories. Data: NOAA / National Weather Service (public domain: radar, alerts, tropical storms), Open-Meteo (CC BY 4.0; free non-commercial tier, the app has no ads or subscriptions), OpenStreetMap base map (ODbL, credited on the map). Build 17 replaced RainViewer radar with NOAA's public-domain radar. A screen recording is attached to our reply in the App Review messages.
+No account or login. Allow location, or tap the place name (top right) and search any city. Tabs: Today, Radar (tap "Play last hour"), Alerts, Tropics. Native features: iOS location services and Home Screen / Lock Screen widgets (WidgetKit). No ads, purchases, analytics or user content. Offered on the U.S. App Store only; radar and alerts cover the U.S. and its territories. Data: NOAA / National Weather Service (public domain: radar, alerts, tropical storms), Open-Meteo (CC BY 4.0; free non-commercial tier, the app has no ads or subscriptions), OpenStreetMap base map (ODbL, credited on the map). Build 18 replaced RainViewer radar with NOAA's public-domain radar. A screen recording is attached to our reply in the App Review messages.

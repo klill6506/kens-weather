@@ -37,6 +37,10 @@
   conus/alaska/hawaii/carib/guam *_bref_qcd, ~2-min frames, CORS *), and
   `ios.appendUserAgent` in capacitor.config.json. Reply text and Ken's steps:
   app-store/review-reply.md.
+- 2026-11-02: On build 17 Ken couldn't find the in-app Privacy link (default
+  blue link on the blue sky, below everything). build-web.mjs now injects it
+  under the data credits in the white `.foot` style; build 18. Anything the
+  app adds must be checked against the sky background, not a white page.
 - Build numbers = GitHub Actions run number of ios.yml. Pushes to `main` do
   NOT run it (push trigger is the `ios-app-store` branch); uploads are a
   manual workflow_dispatch with upload=true.
