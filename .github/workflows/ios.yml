@@ -52,22 +52,38 @@ jobs:
                            os.environ["ASC_API_KEY_P8"], algorithm="ES256", headers={"kid": os.environ["ASC_KEY_ID"], "typ": "JWT"})
           h = {"Authorization": f"Bearer {tok}"}
           def get(path, **params):
-              r = requests.get("https://api.appstoreconnect.apple.com/v1" + path, headers=h, params=params, timeout=30)
+              r = requests.get("https://api.appstoreconnect.apple.com" + path, headers=h, params=params, timeout=30)
               if r.status_code >= 300: print(path, r.status_code, r.text[:500]); r.raise_for_status()
               return r.json()["data"]
-          app = get("/apps", **{"filter[bundleId]": "com.kenlill.weatherbear"})[0]
+          app = get("/v1/apps", **{"filter[bundleId]": "com.kenlill.weatherbear"})[0]
           print("App:", app["attributes"]["name"], "| App Store page:", f"https://apps.apple.com/us/app/id{app['id']}")
-          for v in get(f"/apps/{app['id']}/appStoreVersions", limit=5):
+          for v in get(f"/v1/apps/{app['id']}/appStoreVersions", limit=5):
               a = v["attributes"]
-              build = get(f"/appStoreVersions/{v['id']}/build")
+              build = get(f"/v1/appStoreVersions/{v['id']}/build")
               print(f"Version {a['versionString']}: {a.get('appVersionState') or a.get('appStoreState')}"
                     f" | release: {a.get('releaseType')} | build attached: {build['attributes']['version'] if build else 'none'}")
-          for s in get("/reviewSubmissions", **{"filter[app]": app["id"], "limit": 10}):
+          for s in get("/v1/reviewSubmissions", **{"filter[app]": app["id"], "limit": 10}):
               a = s["attributes"]
               print(f"Review submission: {a.get('state')} | submitted {a.get('submittedDate')}")
-          for b in get("/builds", **{"filter[app]": app["id"], "sort": "-uploadedDate", "limit": 5}):
+          for b in get("/v1/builds", **{"filter[app]": app["id"], "sort": "-uploadedDate", "limit": 5}):
               a = b["attributes"]
               print(f"Build {a['version']}: {a.get('processingState')} | uploaded {a.get('uploadedDate')}")
+          # Countries it's offered in, and anything Apple says blocks the U.S.
+          try:
+              av = get(f"/v1/apps/{app['id']}/appAvailabilityV2")
+              terr = get(f"/v2/appAvailabilities/{av['id']}/territoryAvailabilities", limit=200, include="territory")
+              print(f"Offered in {sum(1 for t in terr if t['attributes'].get('available'))} of {len(terr)} countries")
+              for t in terr:
+                  if t["relationships"]["territory"]["data"]["id"] == "USA":
+                      a = t["attributes"]
+                      print("United States:", "offered" if a.get("available") else "NOT offered",
+                            "| status:", a.get("contentStatuses"), "| release date:", a.get("releaseDate"))
+          except Exception as e:
+              print("Couldn't read country availability:", e)
+          # Apple's public store lookup (what the App Store app sees; can lag a few hours).
+          r = requests.get("https://itunes.apple.com/lookup", params={"id": app["id"], "country": "us"}, timeout=30)
+          res = r.json().get("results", [])
+          print("Public U.S. App Store:", f"listed as {res[0].get('trackName')!r}, version {res[0].get('version')}, released {res[0].get('releaseDate')}" if res else "not listed")
 
   # Registers com.kenlill.weatherbear and its widget ID through the App Store Connect API, so the
   # app can be picked when creating the App Store Connect listing. Safe to run twice.
