@@ -25,8 +25,50 @@ on:
         description: "Register the app and widget bundle IDs with Apple"
         type: boolean
         default: false
+      review_status:
+        description: "Show where the app stands in App Review (read-only)"
+        type: boolean
+        default: false
 
 jobs:
+  # Read-only: asks the App Store Connect API for the version's review state, the review
+  # submissions and the latest builds, and prints them in the job log.
+  review-status:
+    name: App Review status
+    if: github.event_name == 'workflow_dispatch' && inputs.review_status
+    runs-on: ubuntu-latest
+    steps:
+      - run: pip install --quiet pyjwt cryptography requests
+      - name: Ask App Store Connect
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
+        shell: python
+        run: |
+          import os, time, jwt, requests
+          now = int(time.time())
+          tok = jwt.encode({"iss": os.environ["ASC_ISSUER_ID"], "iat": now, "exp": now + 900, "aud": "appstoreconnect-v1"},
+                           os.environ["ASC_API_KEY_P8"], algorithm="ES256", headers={"kid": os.environ["ASC_KEY_ID"], "typ": "JWT"})
+          h = {"Authorization": f"Bearer {tok}"}
+          def get(path, **params):
+              r = requests.get("https://api.appstoreconnect.apple.com/v1" + path, headers=h, params=params, timeout=30)
+              if r.status_code >= 300: print(path, r.status_code, r.text[:500]); r.raise_for_status()
+              return r.json()["data"]
+          app = get("/apps", **{"filter[bundleId]": "com.kenlill.weatherbear"})[0]
+          print("App:", app["attributes"]["name"])
+          for v in get(f"/apps/{app['id']}/appStoreVersions", limit=5):
+              a = v["attributes"]
+              build = get(f"/appStoreVersions/{v['id']}/build")
+              print(f"Version {a['versionString']}: {a.get('appVersionState') or a.get('appStoreState')}"
+                    f" | release: {a.get('releaseType')} | build attached: {build['attributes']['version'] if build else 'none'}")
+          for s in get("/reviewSubmissions", **{"filter[app]": app["id"], "limit": 10}):
+              a = s["attributes"]
+              print(f"Review submission: {a.get('state')} | submitted {a.get('submittedDate')}")
+          for b in get("/builds", **{"filter[app]": app["id"], "sort": "-uploadedDate", "limit": 5}):
+              a = b["attributes"]
+              print(f"Build {a['version']}: {a.get('processingState')} | uploaded {a.get('uploadedDate')}")
+
   # Registers com.kenlill.weatherbear and its widget ID through the App Store Connect API, so the
   # app can be picked when creating the App Store Connect listing. Safe to run twice.
   register-ids:
@@ -59,7 +101,7 @@ jobs:
 
   build-check:
     name: Build check
-    if: github.event_name != 'workflow_dispatch' || inputs.upload || !inputs.register_ids
+    if: github.event_name != 'workflow_dispatch' || inputs.upload || !(inputs.register_ids || inputs.review_status)
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
