@@ -18,7 +18,8 @@
 
 ## Next
 - Approved: version 1.0 (build 19) is READY_FOR_DISTRIBUTION on the U.S. App
-  Store, released automatically after approval (checked 2026-11-12). Check any
+  Store since 2026-11-06 (https://apps.apple.com/us/app/id6828571593), released
+  automatically after approval (checked 2026-11-12). Check any
   time with Actions › iOS › Run workflow › review_status.
 - Whatever Ken wants next for the app.
 
