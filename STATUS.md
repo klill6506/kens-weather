@@ -1,6 +1,6 @@
 # STATUS.md — kens-weather
 
-*Updated: 2026-10-31*
+*Updated: 2026-11-12*
 
 ## Done
 - Single-page app in index.html (forecast, alerts, radar, tropics).
@@ -17,10 +17,10 @@
   credits, region pick for Anchorage/Honolulu/San Juan/Guam/Key West.
 
 ## Next
-- App Review: build 19 resubmitted 2026-11-02 with the screen recording and
-  the reply in app-store/review-reply.md. Waiting on Apple. (Builds 17 and 18
-  skipped: 17's Privacy link was faint blue on blue; 18's Privacy/Support
-  pages had no way back to the app. Both found by Ken on TestFlight.)
+- Approved: version 1.0 (build 19) is READY_FOR_DISTRIBUTION on the U.S. App
+  Store, released automatically after approval (checked 2026-11-12). Check any
+  time with Actions › iOS › Run workflow › review_status.
+- Whatever Ken wants next for the app.
 
 ## Blockers
 - None.

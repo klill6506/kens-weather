@@ -56,7 +56,7 @@ jobs:
               if r.status_code >= 300: print(path, r.status_code, r.text[:500]); r.raise_for_status()
               return r.json()["data"]
           app = get("/apps", **{"filter[bundleId]": "com.kenlill.weatherbear"})[0]
-          print("App:", app["attributes"]["name"])
+          print("App:", app["attributes"]["name"], "| App Store page:", f"https://apps.apple.com/us/app/id{app['id']}")
           for v in get(f"/apps/{app['id']}/appStoreVersions", limit=5):
               a = v["attributes"]
               build = get(f"/appStoreVersions/{v['id']}/build")

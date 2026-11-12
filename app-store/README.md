@@ -25,6 +25,7 @@
    Weather Bear: Radar & Forecast, language English (U.S.), bundle ID `com.kenlill.weatherbear`, SKU `weatherbear`.
 6. **Run the upload**: Actions › iOS › Run workflow › upload ✔. The build shows up in TestFlight
    after Apple processes it; install the TestFlight app on your iPhone and try it.
+   To see where a submission stands, run the workflow with **review_status** ✔ instead; it only reads.
 7. **Fill in the listing** from `listing.md`, add screenshots, answer App Privacy, and press
    Submit for Review.
 
