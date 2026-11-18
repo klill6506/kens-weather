@@ -1,6 +1,6 @@
 # STATUS.md — kens-weather
 
-*Updated: 2026-11-12*
+*Updated: 2026-11-18*
 
 ## Done
 - Single-page app in index.html (forecast, alerts, radar, tropics).
@@ -21,6 +21,8 @@
   Store since 2026-11-06 (https://apps.apple.com/us/app/id6828571593), released
   automatically after approval (checked 2026-11-12). Check any
   time with Actions › iOS › Run workflow › review_status.
+- Google Weather API was considered as the forecast source and ruled out on
+  its terms (2026-11-18, see DECISIONS.md); the app stays on Open-Meteo.
 - Whatever Ken wants next for the app.
 
 ## Blockers
