@@ -50,6 +50,20 @@
   Review message attachments are capped at 30 MB; the 145 MB HEVC original
   was cut to 12 MB with ffmpeg (720 wide, H.264 CRF 24, audio dropped)
   without losing legibility. ffmpeg is installed via winget (Gyan.FFmpeg).
+- 2026-11-18: Ken asked for the Google Maps Platform Weather API as the
+  forecast source (behind a new Django backend on Render). Terms checked that
+  day, before any code was written:
+  - Service Specific Terms §21.1 (cloud.google.com/maps-platform/terms/
+    maps-service-terms, last modified 2026-10-28): "Customers may not use
+    Google Maps Content retrieved from Weather API to recreate a Google
+    service or product (e.g. use data retrieved from Weather API in a weather
+    app or weather model whose primary purpose is to provide weather
+    information)." NOT OK for Weather Bear. Nothing was built.
+  - For reference if Google ever licenses it: caching allowed 1 hour for
+    current, hourly and alerts, 24 hours for daily, then delete; billing
+    account required; hourly forecast pages at 24 hours per call; required
+    credit "Source: Includes weather data from Google."
+  Lesson: read a provider's service terms before designing around its API.
 - Build numbers = GitHub Actions run number of ios.yml. Pushes to `main` do
   NOT run it (push trigger is the `ios-app-store` branch); uploads are a
   manual workflow_dispatch with upload=true.
